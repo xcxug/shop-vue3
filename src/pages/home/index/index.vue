@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="header scroll">
+    <div :class="{ header: true, scroll: isScrollTop }">
       <div class="classify-icon"></div>
       <div class="search-wrap">
         <div class="search-icon"></div>
@@ -9,7 +9,20 @@
       <div class="login">登录</div>
     </div>
     <div class="banner-wrap">
-      <img src="//vueshop.glbuys.com/uploadfiles/1484285302.jpg" alt="" />
+      <div class="swiper-container" ref="swiperContainer">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <img src="//vueshop.glbuys.com/uploadfiles/1484285302.jpg" alt="" />
+          </div>
+          <div class="swiper-slide">
+            <img src="//vueshop.glbuys.com/uploadfiles/1484285334.jpg" alt="" />
+          </div>
+          <div class="swiper-slide">
+            <img src="//vueshop.glbuys.com/uploadfiles/1524206455.jpg" alt="" />
+          </div>
+        </div>
+        <div class="swiper-pagination" ref="swiperPagination"></div>
+      </div>
     </div>
     <div class="quick-nav">
       <ul class="item">
@@ -324,14 +337,86 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {
+  defineComponent,
+  ref,
+  reactive,
+  toRefs,
+  onBeforeMount,
+  onMounted,
+  onUnmounted,
+  onActivated,
+  onDeactivated,
+} from "vue";
+import Swiper from "@/assets/js/libs/swiper";
 
 export default defineComponent({
   name: "component-index",
+  setup() {
+    let swiperContainer = ref<HTMLElement | null>(null);
+    let swiperPagination = ref<HTMLElement | null>(null);
+
+    let state = reactive<{ isScrollTop: boolean; isScroll: boolean }>({
+      isScrollTop: false,
+      isScroll: false,
+    });
+
+    onBeforeMount(() => {
+      state.isScroll = true;
+      window.addEventListener("scroll", eventScrollTop);
+    });
+
+    onMounted(() => {
+      new Swiper(swiperContainer.value, {
+        autoplay: 3000,
+        pagination: swiperPagination.value,
+        paginationClickable: true, // 点击分页器的指示点分页器会控制Swiper切换
+        autoplayDisableOnInteraction: false, // 用户操作swiper之后，是否禁止autoplay
+      });
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("scroll", eventScrollTop);
+    });
+
+    // keep-alive进入时触发
+    onActivated(() => {
+      state.isScroll = true;
+      window.addEventListener("scroll", eventScrollTop);
+    });
+
+    // keep-alive离开时触发
+    onDeactivated(() => {
+      window.removeEventListener("scroll", eventScrollTop);
+    });
+
+    let eventScrollTop = () => {
+      let scrollTop =
+        document.body.scrollTop || document.documentElement.scrollTop;
+      if (scrollTop >= 150) {
+        if (state.isScroll) {
+          state.isScroll = false;
+          state.isScrollTop = true;
+        }
+      } else {
+        if (!state.isScroll) {
+          state.isScroll = true;
+          state.isScrollTop = false;
+        }
+      }
+    };
+
+    return {
+      swiperContainer,
+      swiperPagination,
+      ...toRefs(state),
+    };
+  },
 });
 </script>
 
 <style scoped>
+@import "@/assets/css/common/swiper.css";
 .page {
   width: 100%;
   min-height: 100%;
