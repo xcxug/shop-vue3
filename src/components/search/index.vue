@@ -24,6 +24,7 @@
           class="keywords"
           v-for="(item, index) in historyKeywords"
           :key="index"
+          @click="goSearch(item)"
         >
           {{ item }}
         </div>
@@ -55,6 +56,7 @@ import {
   computed,
   onBeforeMount,
 } from "vue";
+import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { Dialog } from "vant";
 
@@ -67,11 +69,16 @@ export default defineComponent({
         return {};
       },
     },
+    isLocal: {
+      type: Boolean,
+      default: false,
+    },
   },
   // setup(props: any, context) {
   setup(props: any, { emit }) {
     // console.log(props.show.show);
 
+    const router = useRouter();
     const store = useStore();
 
     let state = reactive<{
@@ -114,6 +121,15 @@ export default defineComponent({
         store.commit("search/SET_KEYWORDS", {
           historyKeywords: state.keywords,
         });
+      }
+
+      emit("close", false);
+      if (props.isLocal) {
+        // 向history栈添加一个新的记录，点击后退会返回至上一个页面
+        router.replace("/goods/search?keyword=" + tmpKeyword);
+      } else {
+        // 替换history栈中最后一个记录，点击后退会返回至上上一个页面
+        router.push("/goods/search?keyword=" + tmpKeyword);
       }
     };
 

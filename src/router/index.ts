@@ -42,6 +42,11 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
+  {
+    path: "/goods/search",
+    name: "goods-search",
+    component: () => import("@/pages/home/goods/search.vue"),
+  },
 ];
 
 const router = createRouter({

@@ -2,24 +2,35 @@
   <div class="page">
     <div class="search-top">
       <div class="search-header">
-        <div class="back"></div>
-        <div class="search-wrap">
+        <div class="back" @click="$router.go(-1)"></div>
+        <div class="search-wrap" @click="searchShow.show = true">
           <div class="search-icon"></div>
-          <div class="search-text">大码女装</div>
+          <div class="search-text">{{ keyword }}</div>
         </div>
-        <div class="screen-btn">筛选</div>
+        <div class="screen-btn" @click="isScreen = true">筛选</div>
       </div>
       <div class="order-main">
-        <div class="order-item active">
+        <div
+          :class="{ 'order-item': true, active: isPriceOrder }"
+          @click="selectPrice()"
+        >
           <div class="order-text">综合</div>
           <div class="order-icon"></div>
-          <ul class="order-menu hide">
-            <li class="active">综合</li>
-            <li>价格从低到高</li>
-            <li>价格从高到低</li>
+          <ul class="order-menu" v-show="isPriceOrder">
+            <li
+              :class="{ active: item.active }"
+              v-for="(item, index) in priceOrderList"
+              :key="index"
+              @click="selectPriceOrder(index)"
+            >
+              {{ item.title }}
+            </li>
           </ul>
         </div>
-        <div class="order-item active">
+        <div
+          :class="{ 'order-item': true, active: isSalesOrder }"
+          @click="selectSales()"
+        >
           <div class="order-text">销量</div>
         </div>
       </div>
@@ -65,80 +76,86 @@
           <div class="sales">销量<span>10</span>件</div>
         </div>
       </div>
-      <div class="null-item">没有相关商品！</div>
+      <div class="no-data">没有相关商品！</div>
     </div>
-    <div ref="mask" class="mask" v-show="false"></div>
-    <div ref="screen" class="screen unmove">
+    <div
+      ref="mask"
+      class="mask"
+      v-show="isScreen"
+      @click="isScreen = false"
+    ></div>
+    <div ref="screen" :class="isScreen ? 'screen move' : 'screen unmove'">
       <div>
         <div class="attr-wrap">
-          <div class="attr-title-wrap">
+          <div class="attr-title-wrap" @click="isClassify = !isClassify">
             <div class="attr-name">分类</div>
-            <div class="attr-icon"></div>
+            <div :class="{ 'attr-icon': true, up: isClassify }"></div>
           </div>
-          <div class="item-wrap">
-            <div class="item active">潮流女装</div>
-            <div class="item">品牌男装</div>
-            <div class="item">数码产品</div>
-            <div class="item">品牌男装</div>
-            <div class="item">数码产品</div>
-            <div class="item">品牌男装</div>
-            <div class="item">数码产品</div>
-            <div class="item">品牌男装</div>
-            <div class="item">数码产品</div>
-            <div class="item">品牌男装</div>
-            <div class="item">数码产品</div>
-            <div class="item">品牌男装</div>
-            <div class="item">数码产品</div>
-            <div class="item">品牌男装</div>
-            <div class="item">数码产品</div>
+          <div class="item-wrap" v-show="!isClassify">
+            <div
+              v-for="(item, index) in classifys"
+              :key="index"
+              :class="{ item: true, active: item.active }"
+              @click="selectClassify(index)"
+            >
+              {{ item.title }}
+            </div>
           </div>
         </div>
         <div style="width: 100%; height: 1px; backgroundcolor: #efefef"></div>
         <div class="attr-wrap">
-          <div class="attr-title-wrap">
+          <div class="attr-title-wrap" @click="HIDE_PRICE()">
             <div class="attr-name">价格区间</div>
-            <div class="price-wrap">
+            <div class="price-wrap" @click.stop>
               <div class="price-input">
-                <input type="tel" placeholder="最低价" value="" />
+                <input
+                  type="tel"
+                  placeholder="最低价"
+                  :value="minPrice"
+                  @input="SET_MINPRICE($event.target.value)"
+                />
               </div>
               <div class="price-line"></div>
               <div class="price-input">
-                <input type="tel" placeholder="最高价" value="" />
+                <input
+                  type="tel"
+                  placeholder="最高价"
+                  :value="maxPrice"
+                  @input="SET_MAXPRICE($event.target.value)"
+                />
               </div>
             </div>
-            <div class="attr-icon"></div>
+            <div :class="{ 'attr-icon': true, up: priceData.isHide }"></div>
           </div>
-          <div class="item-wrap">
-            <div class="item active">1-50</div>
-            <div class="item">51-99</div>
-            <div class="item">100-300</div>
-            <div class="item">301-1000</div>
-            <div class="item">1001-4000</div>
-            <div class="item">4001-9999</div>
+          <div class="item-wrap" v-show="!priceData.isHide">
+            <div
+              :class="{ item: true, active: item.active }"
+              v-for="(item, index) in priceData.items"
+              :key="index"
+              @click="SELECT_PRICE(index)"
+            >
+              {{ item.price1 }}-{{ item.price2 }}
+            </div>
           </div>
         </div>
         <div
           style="width: 100%; height: 0.3rem; backgroundcolor: #efefef"
         ></div>
         <div>
-          <div class="attr-wrap">
-            <div class="attr-title-wrap">
-              <div class="attr-name">颜色</div>
-              <div class="attr-icon up"></div>
+          <div class="attr-wrap" v-for="(item, index) in attrs" :key="index">
+            <div class="attr-title-wrap" @click="HIDE_ATTR(index)">
+              <div class="attr-name">{{ item.title }}</div>
+              <div :class="{ 'attr-icon': true, up: item.isHide }"></div>
             </div>
-            <div class="item-wrap">
-              <div class="item active">白色</div>
-              <div class="item">黑色</div>
-            </div>
-          </div>
-          <div class="attr-wrap">
-            <div class="attr-title-wrap">
-              <div class="attr-name">尺码</div>
-              <div class="attr-icon up"></div>
-            </div>
-            <div class="item-wrap">
-              <div class="item active">30</div>
-              <div class="item">40</div>
+            <div class="item-wrap" v-show="!item.isHide">
+              <div
+                :class="{ item: true, active: item2.active }"
+                v-for="(item2, index2) in item.param"
+                :key="index2"
+                @click="SELECT_ATTR(index, index2)"
+              >
+                {{ item2.title }}
+              </div>
             </div>
           </div>
           <div style="width: 100%; height: 1px; backgroundcolor: #efefef"></div>
@@ -151,14 +168,213 @@
         <div class="item sure">确定</div>
       </div>
     </div>
+    <my-search
+      :show="searchShow"
+      :isLocal="true"
+      @close="handleClose"
+    ></my-search>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {
+  defineComponent,
+  ref,
+  reactive,
+  toRefs,
+  computed,
+  onBeforeMount,
+  onMounted,
+  onUnmounted,
+  nextTick,
+} from "vue";
+import { useRouter, onBeforeRouteUpdate } from "vue-router";
+import { useStore } from "vuex";
+import IScroll from "@/assets/js/libs/iscroll";
+import MySearch from "@/components/search";
+
+interface SearchShow {
+  show: boolean;
+}
+
+interface PriceOrder {
+  otype: string;
+  title: string;
+  active: boolean;
+}
 
 export default defineComponent({
   name: "component-search",
+  components: {
+    MySearch,
+  },
+  setup() {
+    const router = useRouter();
+    const store = useStore();
+
+    let screen = ref<HTMLElement | null>(null);
+
+    let state = reactive<{
+      classifys: any;
+      priceData: any;
+      minPrice: any;
+      maxPrice: any;
+      attrs: any;
+      searchShow: SearchShow;
+      keyword: string;
+      isScreen: boolean;
+      isPriceOrder: boolean;
+      priceOrderList: PriceOrder[];
+      isSalesOrder: boolean;
+      isClassify: boolean;
+      myScroll: any;
+    }>({
+      classifys: computed(() => store.state.goods.classifys),
+      priceData: computed(() => store.state.search.priceData),
+      minPrice: computed(() => store.state.search.minPrice),
+      maxPrice: computed(() => store.state.search.maxPrice),
+      attrs: computed(() => store.state.search.attrs),
+      searchShow: {
+        show: false,
+      },
+      keyword: "",
+      isScreen: false,
+      isPriceOrder: false,
+      priceOrderList: [
+        { otype: "all", title: "综合", active: true },
+        { otype: "up", title: "价格从低到高", active: false },
+        { otype: "down", title: "价格从高到低", active: false },
+      ],
+      isSalesOrder: false,
+      isClassify: false,
+      myScroll: {},
+    });
+
+    onBeforeMount(() => {
+      state.keyword = (router.currentRoute.value.query.keyword as string)
+        ? (router.currentRoute.value.query.keyword as string)
+        : "";
+      getClassify();
+    });
+
+    onMounted(() => {
+      screen.value?.addEventListener("touchmove", disableScreenTochmove);
+      state.myScroll = new IScroll(screen.value, {
+        scrollX: false,
+        scrollY: true,
+        preventDefault: false,
+      });
+    });
+
+    onUnmounted(() => {
+      screen.value?.removeEventListener("touchmove", disableScreenTochmove);
+    });
+
+    onBeforeRouteUpdate((to, form, next) => {
+      state.keyword = to.query.keyword as string;
+      next();
+    });
+
+    // 禁用touchmove事件
+    let disableScreenTochmove = (e: { preventDefault: () => void }) => {
+      e.preventDefault();
+    };
+
+    let getClassify = () => {
+      store.dispatch("goods/getClassify", {
+        success: () => {
+          nextTick(() => {
+            state.myScroll.refresh();
+          });
+        },
+      });
+    };
+
+    let selectPrice = () => {
+      state.isPriceOrder = !state.isPriceOrder;
+    };
+
+    // 价格排序
+    let selectPriceOrder = (index: number) => {
+      if (state.priceOrderList.length > 0) {
+        for (let i = 0; i < state.priceOrderList.length; i++) {
+          if (state.priceOrderList[i].active) {
+            state.priceOrderList[i].active = false;
+            break;
+          }
+        }
+        state.priceOrderList[index].active = true;
+        state.isSalesOrder = false;
+      }
+    };
+
+    // 销量排序
+    let selectSales = () => {
+      state.isSalesOrder = true;
+      state.isPriceOrder = false;
+      for (let i = 0; i < state.priceOrderList.length; i++) {
+        if (state.priceOrderList[i].active) {
+          state.priceOrderList[i].active = false;
+          break;
+        }
+      }
+    };
+
+    let selectClassify = (index: number) => {
+      store.dispatch("search/selectClassify", { index: index });
+    };
+
+    let HIDE_PRICE = () => {
+      store.commit("search/HIDE_PRICE");
+    };
+
+    let SET_MINPRICE = (minPrice: string) => {
+      store.commit("search/SET_MINPRICE", {
+        minPrice: minPrice,
+      });
+    };
+
+    let SET_MAXPRICE = (maxPrice: string) => {
+      store.commit("search/SET_MAXPRICE", {
+        maxPrice: maxPrice,
+      });
+    };
+
+    let SELECT_PRICE = (index: number) => {
+      store.commit("search/SELECT_PRICE", { index: index });
+    };
+
+    let HIDE_ATTR = (index: number) => {
+      store.commit("search/HIDE_ATTR", { index: index });
+    };
+
+    let SELECT_ATTR = (index: number, index2: number) => {
+      store.commit("search/SELECT_ATTR", {
+        index: index,
+        index2: index2,
+      });
+    };
+
+    let handleClose = (show: boolean) => {
+      state.searchShow.show = show;
+    };
+
+    return {
+      screen,
+      ...toRefs(state),
+      selectPrice,
+      selectPriceOrder,
+      selectSales,
+      selectClassify,
+      HIDE_PRICE,
+      SET_MINPRICE,
+      SET_MAXPRICE,
+      SELECT_PRICE,
+      HIDE_ATTR,
+      SELECT_ATTR,
+      handleClose,
+    };
+  },
 });
 </script>
 

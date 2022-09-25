@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="search-header">
+    <div class="search-header" @click="searchShow.show = true">
       <div class="back" @click="goBack()"></div>
       <div class="search">请输入宝贝名称</div>
     </div>
@@ -24,6 +24,7 @@
         <router-view></router-view>
       </div>
     </div>
+    <my-search :show="searchShow" @close="handleClose"></my-search>
   </div>
 </template>
 
@@ -42,9 +43,17 @@ import {
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import IScroll from "@/assets/js/libs/iscroll";
+import MySearch from "@/components/search";
+
+interface SearchShow {
+  show: boolean;
+}
 
 export default defineComponent({
   name: "component-classify",
+  components: {
+    MySearch,
+  },
   setup() {
     const router = useRouter();
     const store = useStore();
@@ -55,8 +64,16 @@ export default defineComponent({
       elClassifyItem.push(el);
     };
 
-    let state = reactive<{ classifys: any; cid: string; myScroll: any }>({
+    let state = reactive<{
+      classifys: any;
+      searchShow: SearchShow;
+      cid: string;
+      myScroll: any;
+    }>({
       classifys: computed(() => store.state.goods.classifys),
+      searchShow: {
+        show: false,
+      },
       cid: "",
       myScroll: {},
     });
@@ -140,6 +157,10 @@ export default defineComponent({
       store.commit("goods/SELECT_ITEM", { index: index });
     };
 
+    let handleClose = (show: boolean) => {
+      state.searchShow.show = show;
+    };
+
     let goBack = () => {
       router.go(-1);
     };
@@ -150,6 +171,7 @@ export default defineComponent({
       ...toRefs(state),
       classifyItem,
       replacePage,
+      handleClose,
       goBack,
     };
   },
