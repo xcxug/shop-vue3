@@ -1,5 +1,11 @@
-import { getAddresData, delAddressData, addAddressData } from "@/api/address";
-import { Address, AddAddressData } from "./interface";
+import {
+  getAddresData,
+  delAddressData,
+  addAddressData,
+  getAddressInfoData,
+  modAddressData,
+} from "@/api/address";
+import { Address, AddAddressData, AddressInfoData } from "./interface";
 import * as Types from "./types";
 
 export default {
@@ -70,6 +76,55 @@ export default {
           data: AddAddressData | string;
           status: number;
         }) => {
+          if (payload.success) {
+            payload.success(res);
+          }
+        }
+      );
+    },
+    // 收货地址详情
+    getAddressInfo(
+      conText: any,
+      payload: {
+        aid: string;
+        success: (res: {
+          code: number;
+          data: AddressInfoData | string;
+          status: number;
+        }) => void;
+      }
+    ) {
+      getAddressInfoData({ uid: conText.rootState.user.uid, ...payload }).then(
+        (res: {
+          code: number;
+          data: AddressInfoData | string;
+          status: number;
+        }) => {
+          if (res.code === 200) {
+            if (payload.success) {
+              payload.success(res);
+            }
+          }
+        }
+      );
+    },
+    // 修改收货地址
+    modAddress(
+      conText: any,
+      payload: {
+        aid: string;
+        name: string;
+        cellphone: string;
+        address: string;
+        isdefault: string;
+        province: string;
+        city: string;
+        area: string;
+        success: (res: { code: number; data: string; status: number }) => void;
+      }
+    ) {
+      modAddressData({ uid: conText.rootState.user.uid, ...payload }).then(
+        (res: { code: number; data: string; status: number }) => {
           if (payload.success) {
             payload.success(res);
           }
