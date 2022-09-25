@@ -1,5 +1,5 @@
-import { getAddresData, delAddressData } from "@/api/address";
-import { Address } from "./interface";
+import { getAddresData, delAddressData, addAddressData } from "@/api/address";
+import { Address, AddAddressData } from "./interface";
 import * as Types from "./types";
 
 export default {
@@ -39,6 +39,39 @@ export default {
         (res: { code: number; data: string; status: number }) => {
           if (res.code === 200) {
             conText.commit(Types.DEL_ADDRESS, { index: payload.index });
+          }
+        }
+      );
+    },
+    // 添加收货地址
+    addAddress(
+      conText: any,
+      payload: {
+        name: string;
+        cellphone: string;
+        address: string;
+        isdefault: string;
+        province: string;
+        city: string;
+        area: string;
+        success: (res: {
+          code: number;
+          data: AddAddressData | string;
+          status: number;
+        }) => void;
+      }
+    ) {
+      addAddressData({
+        uid: conText.rootState.user.uid,
+        ...payload,
+      }).then(
+        (res: {
+          code: number;
+          data: AddAddressData | string;
+          status: number;
+        }) => {
+          if (payload.success) {
+            payload.success(res);
           }
         }
       );

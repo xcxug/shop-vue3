@@ -1,6 +1,6 @@
 import config from "@/assets/js/conf/config";
 import { request } from "@/assets/js/utils/request";
-import { DelAddressData } from "./interface";
+import { DelAddressData, AddAddressData } from "./interface";
 
 // 收货地址列表
 function getAddresData(uid: string) {
@@ -22,4 +22,13 @@ function delAddressData(params: DelAddressData) {
   );
 }
 
-export { getAddresData, delAddressData };
+// 添加收货地址
+function addAddressData(params: AddAddressData) {
+  return request(
+    config.baseApi + "/user/address/add?token=" + config.token,
+    "post",
+    params
+  );
+}
+
+export { getAddresData, delAddressData, addAddressData };

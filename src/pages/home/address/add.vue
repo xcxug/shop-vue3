@@ -1,49 +1,185 @@
 <template>
   <div class="page">
-    <div class="sub-header">
-      <div class="back"></div>
-      <div class="title">添加收货地址</div>
-      <div class="right-btn">保存</div>
-    </div>
+    <SubHeader title="添加收货地址"></SubHeader>
     <div class="main">
       <ul>
         <li>收货人</li>
-        <li><input type="text" placeholder="收货人姓名" /></li>
+        <li><input type="text" placeholder="收货人姓名" v-model="name" /></li>
       </ul>
       <ul>
         <li>联系方式</li>
-        <li><input type="text" placeholder="联系人手机号" /></li>
+        <li>
+          <input type="text" placeholder="联系人手机号" v-model="cellphone" />
+        </li>
       </ul>
       <ul>
         <li>所在地区</li>
         <li>
           <input
             type="text"
-            placeholder="请选择收货地址"
+            placeholder="请选择所在地区"
             class="area"
             readOnly
-            value=""
+            :value="showArea"
+            @click="isArea = true"
           />
         </li>
       </ul>
       <ul>
         <li>详细地址</li>
-        <li><input type="text" placeholder="街道详细地址" /></li>
+        <li>
+          <input type="text" placeholder="街道详细地址" v-model="address" />
+        </li>
       </ul>
       <ul>
         <li>设置为默认地址</li>
-        <li><input type="checkbox" checked /></li>
+        <li><input type="checkbox" v-model="isDefault" /></li>
       </ul>
-      <button type="button" class="submit-save">保存</button>
+      <button type="button" class="submit-save" @click="submit()">保存</button>
     </div>
+    <van-popup v-model:show="isArea">
+      <van-area
+        :area-list="areaList"
+        @cancel="isArea = false"
+        @confirm="selectArea"
+      />
+    </van-popup>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, reactive, toRefs } from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { Toast } from "vant";
+import areaData from "@/assets/data/area";
+import SubHeader from "@/components/sub_header";
+
+interface AddAddressData {
+  address: string;
+  aid: string;
+  area: string;
+  cellphone: string;
+  city: string;
+  name: string;
+  province: string;
+}
+
+interface Area {
+  code: string;
+  name: string;
+}
 
 export default defineComponent({
   name: "address-add",
+  components: {
+    SubHeader,
+  },
+  setup() {
+    const router = useRouter();
+    const store = useStore();
+
+    let state = reactive<{
+      name: string;
+      cellphone: string;
+      showArea: string;
+      address: string;
+      isDefault: boolean;
+      areaList: any;
+      isArea: boolean;
+      province: string;
+      city: string;
+      area: string;
+      isSubmit: boolean;
+    }>({
+      name: "",
+      cellphone: "",
+      showArea: "",
+      address: "",
+      isDefault: false,
+      areaList: areaData,
+      isArea: false,
+      province: "",
+      city: "",
+      area: "",
+      isSubmit: true,
+    });
+
+    let submit = () => {
+      if (state.name.match(/^\s*$/)) {
+        Toast("请输入收货人姓名");
+        return;
+      }
+
+      if (state.cellphone.match(/^\s*$/)) {
+        Toast("请输入联系人手机号");
+        return;
+      }
+      if (!state.cellphone.match(/^1[0-9][0-9]\d{8}$/)) {
+        Toast("您输入的手机号格式不正确");
+        return;
+      }
+
+      if (state.showArea.match(/^\s*$/)) {
+        Toast("请选择所在地区");
+        return;
+      }
+
+      if (state.address.match(/^\s*$/)) {
+        Toast("请输入详细地址");
+        return;
+      }
+
+      if (state.isSubmit) {
+        state.isSubmit = false;
+        store.dispatch("address/addAddress", {
+          name: state.name,
+          cellphone: state.cellphone,
+          address: state.address,
+          isdefault: state.isDefault ? "1" : "0",
+          province: state.province,
+          city: state.city,
+          area: state.area,
+          success: (res: {
+            code: number;
+            data: AddAddressData | string;
+            status: number;
+          }) => {
+            if (res.code === 200) {
+              Toast({
+                duration: 2000,
+                message: "添加成功！",
+                onClose: () => {
+                  router.go(-1);
+                },
+              });
+            }
+          },
+        });
+      }
+    };
+
+    // 选择所在地区
+    let selectArea = (val: Area[]) => {
+      state.isArea = false;
+      let tmpVal = [];
+      if (val.length > 0) {
+        for (let i = 0; i < val.length; i++) {
+          tmpVal.push(val[i].name);
+        }
+        state.province = tmpVal[0];
+        state.city = tmpVal[1];
+        state.area = tmpVal[2];
+      }
+      state.showArea = tmpVal.join(" ");
+    };
+
+    return {
+      ...toRefs(state),
+      submit,
+      selectArea,
+    };
+  },
 });
 </script>
 
@@ -53,43 +189,6 @@ export default defineComponent({
   height: 100vh;
   overflow: hidden;
   background-color: #ffffff;
-}
-
-.sub-header {
-  width: 100%;
-  height: 1rem;
-  background-color: #ffffff;
-  display: flex;
-  display: -webkit-flex;
-  align-items: center;
-  -webkit-align-items: center;
-  border-bottom: 1px solid #efefef;
-  position: fixed;
-  z-index: 10;
-  left: 0;
-  top: 0;
-}
-
-.sub-header .back {
-  width: 0.8rem;
-  height: 0.8rem;
-  background-image: url("../../../assets/images/home/goods/back.png");
-  background-size: 100%;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.sub-header .title {
-  width: 79%;
-  height: auto;
-  font-size: 0.32rem;
-  text-align: center;
-}
-
-.sub-header .right-btn {
-  width: auto;
-  height: auto;
-  font-size: 0.32rem;
 }
 
 .main {
