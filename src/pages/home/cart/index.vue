@@ -53,7 +53,10 @@
           >&nbsp;&nbsp;合计：<span>¥{{ total }}</span>
         </div>
       </div>
-      <div :class="total > 0 ? 'orderend-btn' : 'orderend-btn disable'">
+      <div
+        :class="total > 0 ? 'orderend-btn' : 'orderend-btn disable'"
+        @click="statement()"
+      >
         去结算
       </div>
     </div>
@@ -167,6 +170,13 @@ export default defineComponent({
       }
     };
 
+    // 去结算
+    let statement = () => {
+      if (store.getters["cart/total"] > 0) {
+        router.push("/order");
+      }
+    };
+
     return {
       ...toRefs(state),
       selectItem,
@@ -175,6 +185,7 @@ export default defineComponent({
       SET_AMOUNT,
       INC_AMOUNT,
       allSelect,
+      statement,
     };
   },
 });

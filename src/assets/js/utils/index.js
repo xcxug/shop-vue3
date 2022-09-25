@@ -1,4 +1,6 @@
 import echo from "../libs/echo";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
 function lazyImg() {
   echo.init({
@@ -7,6 +9,21 @@ function lazyImg() {
   });
 }
 
+// 单点登录验证
+function safeUser() {
+  const router = useRouter();
+  const store = useStore();
+
+  store.dispatch("user/safeUser", {
+    success: (res) => {
+      if (res.code !== 200) {
+        router.replace("/login");
+      }
+    },
+  });
+}
+
 export default {
   lazyImg,
+  safeUser,
 };

@@ -82,6 +82,27 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
+  {
+    path: "/order",
+    name: "order",
+    component: () => import("@/pages/home/order/index.vue"),
+    meta: { auth: true, title: "确认订单" },
+  },
+  {
+    path: "/address",
+    name: "address",
+    component: () => import("@/pages/home/address/index.vue"),
+  },
+  {
+    path: "/address/add",
+    name: "address-add",
+    component: () => import("@/pages/home/address/add.vue"),
+  },
+  {
+    path: "/address/mod",
+    name: "address-mod",
+    component: () => import("@/pages/home/address/mod.vue"),
+  },
 ];
 
 const router = createRouter({
