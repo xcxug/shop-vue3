@@ -1,42 +1,99 @@
 <template>
   <div class="page">
     <div class="reviews-main">
-      <div class="reviews-title">商品评价（10）</div>
-      <div class="reviews-wrap">
-        <div class="reviews-list">
+      <div class="reviews-title">商品评价（{{ total }}）</div>
+      <div class="reviews-wrap" v-show="reviews.length > 0">
+        <div class="reviews-list" v-for="(item, index) in reviews" :key="index">
           <div class="uinfo">
             <div class="head">
-              <img src="//vueshop.glbuys.com/uploadfiles/1524556409.jpg" />
+              <img
+                src="../../../assets/images/common/lazyImg.jpg"
+                :data-echo="item.head"
+              />
             </div>
-            <div class="nickname">李四</div>
+            <div class="nickname">{{ item.nickname }}</div>
           </div>
-          <div class="reviews-content">
-            评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容
-          </div>
-          <div class="reviews-date">2019-07-25</div>
-        </div>
-        <div class="reviews-list">
-          <div class="uinfo">
-            <div class="head">
-              <img src="//vueshop.glbuys.com/uploadfiles/1524556409.jpg" />
-            </div>
-            <div class="nickname">李四</div>
-          </div>
-          <div class="reviews-content">
-            评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容评价内容
-          </div>
-          <div class="reviews-date">2019-07-25</div>
+          <div class="reviews-content" v-html="item.content"></div>
+          <div class="reviews-date">{{ item.times }}</div>
         </div>
       </div>
+      <div class="no-data" v-show="reviews.length <= 0">暂无评价！</div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {
+  defineComponent,
+  reactive,
+  toRefs,
+  computed,
+  onBeforeMount,
+  onUnmounted,
+  nextTick,
+  getCurrentInstance,
+} from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import UpRefresh from "@/assets/js/libs/uprefresh";
 
 export default defineComponent({
   name: "component-details-review",
+  setup() {
+    const { proxy }: any = getCurrentInstance();
+    const router = useRouter();
+    const store = useStore();
+
+    let state = reactive<{
+      total: any;
+      reviews: any;
+      gid: string;
+      pullUp: any;
+    }>({
+      total: computed(() => store.state.goodsReview.total),
+      reviews: computed(() => store.state.goodsReview.reviews),
+      gid: "",
+      pullUp: {},
+    });
+
+    onBeforeMount(() => {
+      state.gid = (router.currentRoute.value.query.gid as string)
+        ? (router.currentRoute.value.query.gid as string)
+        : "";
+      state.pullUp = new UpRefresh();
+
+      getReviews();
+    });
+
+    onUnmounted(() => {
+      state.pullUp.uneventSrcoll();
+    });
+
+    let getReviews = () => {
+      store.dispatch("goodsReview/getReviews", {
+        gid: state.gid,
+        success: (pageNum: number) => {
+          nextTick(() => {
+            proxy.$utils.lazyImg();
+          });
+
+          state.pullUp.init(
+            { curPage: 1, maxPage: pageNum, offsetBottom: 100 },
+            (page: number) => {
+              store.dispatch("goodsReview/getReviewsPage", {
+                gid: state.gid,
+                page: page,
+              });
+            }
+          );
+        },
+      });
+    };
+
+    return {
+      ...toRefs(state),
+    };
+  },
 });
 </script>
 

@@ -16,9 +16,18 @@ export default {
       state.reviews = payload.reviews;
       state.total = payload.total;
     },
+    [Types.SET_REVIEWS_PAGE](
+      state: { reviews: Reviews[] },
+      payload: { reviews: Reviews[] }
+    ) {
+      state.reviews.push(...payload.reviews);
+    },
   },
   actions: {
-    getReviews(conText: any, payload: { gid: string; success: () => void }) {
+    getReviews(
+      conText: any,
+      payload: { gid: string; success: (pageNum: number) => void }
+    ) {
       getReviewsData(payload.gid).then(
         (res: {
           code: number;
@@ -26,16 +35,33 @@ export default {
           pageinfo: Pageinfo;
           status: number;
         }) => {
+          let pageNum = 0;
           if (res.code === 200) {
             conText.commit(Types.SET_REVIEWS, {
               reviews: res.data,
               total: res.pageinfo.total,
             });
-            if (payload.success) {
-              payload.success();
-            }
+            pageNum = Number(res.pageinfo.pagenum);
           } else {
             conText.commit(Types.SET_REVIEWS, { reviews: [], total: 0 });
+            pageNum = 0;
+          }
+          if (payload.success) {
+            payload.success(pageNum);
+          }
+        }
+      );
+    },
+    getReviewsPage({ commit }: any, payload: { gid: string; page: number }) {
+      getReviewsData(payload.gid, payload.page).then(
+        (res: {
+          code: number;
+          data: Reviews[];
+          pageinfo: Pageinfo;
+          status: number;
+        }) => {
+          if (res.code === 200) {
+            commit(Types.SET_REVIEWS_PAGE, { reviews: res.data });
           }
         }
       );

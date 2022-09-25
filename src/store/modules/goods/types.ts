@@ -11,3 +11,5 @@ export const SET_DETAILS = "SET_DETAILS";
 export const SET_ATTRS = "SET_ATTRS";
 
 export const SET_REVIEWS = "SET_REVIEWS";
+
+export const SET_REVIEWS_PAGE = "SET_REVIEWS_PAGE";
