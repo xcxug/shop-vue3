@@ -35,6 +35,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { keepAlive: false },
   },
   {
+    path: "/reg",
+    name: "reg",
+    component: () => import("@/pages/home/reg/index.vue"),
+    meta: { keepAlive: false },
+  },
+  {
     path: "/goods/classify",
     name: "goods-classify",
     component: () => import("@/pages/home/goods/classify.vue"),

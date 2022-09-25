@@ -92,7 +92,11 @@ export default defineComponent({
           status: number;
         }) => {
           if (res.code === 200) {
-            router.go(-1);
+            if (router.currentRoute.value.query.from === "reg") {
+              router.go(-3);
+            } else {
+              router.go(-1);
+            }
           } else {
             Toast(res.data as string);
           }

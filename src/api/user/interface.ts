@@ -11,3 +11,9 @@ export interface SafeUserData {
 export interface SafeOutLoginData {
   uid: string;
 }
+
+export interface RegUserData {
+  cellphone: string;
+  password: string;
+  vcode: string;
+}
