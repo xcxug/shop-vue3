@@ -5,6 +5,7 @@ import search from "./modules/search";
 import goodsReview from "./modules/goods/review";
 import cart from "./modules/cart";
 import user from "./modules/user";
+import address from "./modules/address";
 
 export default createStore({
   modules: {
@@ -14,5 +15,6 @@ export default createStore({
     goodsReview,
     cart,
     user,
+    address,
   },
 });

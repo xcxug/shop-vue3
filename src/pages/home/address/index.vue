@@ -1,10 +1,6 @@
 <template>
   <div class="page">
-    <div class="sub-header">
-      <div class="back"></div>
-      <div class="title">选择收货地址</div>
-      <div class="right-btn">保存</div>
-    </div>
+    <SubHeader title="选择收货地址"></SubHeader>
     <div class="main">
       <div class="address-nav">
         <div class="address-nav-name-1">配送地址</div>
@@ -12,36 +8,33 @@
           +添加收货地址
         </div>
       </div>
-      <div class="address-list">
+      <div class="address-list" v-for="(item, index) in address" :key="index">
         <div class="address-info-wrap">
-          <div class="check-mark"></div>
-          <div :class="{ 'address-info': true, default: true }">
-            <div class="person"><span>张三</span><span>1383763512</span></div>
+          <div
+            class="check-mark"
+            v-if="item.isdefault === '1' ? true : false"
+          ></div>
+          <div
+            :class="{
+              'address-info': true,
+              default: item.isdefault === '1' ? true : false,
+            }"
+          >
+            <div class="person">
+              <span>{{ item.name }}</span
+              ><span>{{ item.cellphone }}</span>
+            </div>
             <div class="address">
-              <span class="default">默认</span>
+              <span class="default" v-if="item.isdefault === '1' ? true : false"
+                >默认</span
+              >
               <span class="text">北京朝阳</span>
             </div>
           </div>
         </div>
         <div class="handle-wrap">
           <div class="edit" @click="$router.push('/address/mod')"></div>
-          <div class="del"></div>
-        </div>
-      </div>
-      <div class="address-list">
-        <div class="address-info-wrap">
-          <div class="check-mark" v-show="false"></div>
-          <div :class="{ 'address-info': true, default: false }">
-            <div class="person"><span>张三</span><span>1383763512</span></div>
-            <div class="address">
-              <span class="default" v-show="false">默认</span>
-              <span class="text">北京朝阳</span>
-            </div>
-          </div>
-        </div>
-        <div class="handle-wrap">
-          <div class="edit"></div>
-          <div class="del"></div>
+          <div class="del" @click="delAddress(index, item.aid)"></div>
         </div>
       </div>
       <div class="no-data" v-show="false">您还没有添加收货地址！</div>
@@ -50,10 +43,67 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {
+  defineComponent,
+  reactive,
+  toRefs,
+  computed,
+  onBeforeMount,
+  onMounted,
+  getCurrentInstance,
+} from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { Dialog } from "vant";
+import SubHeader from "@/components/sub_header";
 
 export default defineComponent({
   name: "my-address",
+  components: {
+    SubHeader,
+  },
+  setup() {
+    const { proxy }: any = getCurrentInstance();
+    const router = useRouter();
+    const store = useStore();
+
+    let state = reactive<{
+      address: any;
+    }>({
+      address: computed(() => store.state.address.address),
+    });
+
+    onBeforeMount(() => {
+      proxy.$utils.safeUser();
+      getAddress();
+    });
+
+    onMounted(() => {
+      document.title = router.currentRoute.value.meta.title as string;
+    });
+
+    let getAddress = () => {
+      store.dispatch("address/getAddress");
+    };
+
+    let delAddress = (index: number, aid: string) => {
+      Dialog.confirm({
+        title: "",
+        message: "确认要删除吗？",
+      })
+        .then(() => {
+          store.dispatch("address/delAddress", { index: index, aid: aid });
+        })
+        .catch(() => {
+          // 什么也不做
+        });
+    };
+
+    return {
+      ...toRefs(state),
+      delAddress,
+    };
+  },
 });
 </script>
 
@@ -63,43 +113,6 @@ export default defineComponent({
   min-height: 100vh;
   background-color: #ffffff;
   overflow: hidden;
-}
-
-.sub-header {
-  width: 100%;
-  height: 1rem;
-  background-color: #ffffff;
-  display: flex;
-  display: -webkit-flex;
-  align-items: center;
-  -webkit-align-items: center;
-  border-bottom: 1px solid #efefef;
-  position: fixed;
-  z-index: 10;
-  left: 0;
-  top: 0;
-}
-
-.sub-header .back {
-  width: 0.8rem;
-  height: 0.8rem;
-  background-image: url("../../../assets/images/home/goods/back.png");
-  background-size: 100%;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.sub-header .title {
-  width: 79%;
-  height: auto;
-  font-size: 0.32rem;
-  text-align: center;
-}
-
-.sub-header .right-btn {
-  width: auto;
-  height: auto;
-  font-size: 0.32rem;
 }
 
 .main {
