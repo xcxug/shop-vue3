@@ -15,3 +15,15 @@ export const SET_MAXPRICE = "SET_MAXPRICE";
 export const HIDE_ATTR = "HIDE_ATTR";
 
 export const SELECT_ATTR = "SELECT_ATTR";
+
+export const SET_SEARCH_DATA = "SET_SEARCH_DATA";
+
+export const SET_SEARCH_DATA_PAGE = "SET_SEARCH_DATA_PAGE";
+
+export const SET_CID = "SET_CID";
+
+export const SET_ATTRS = "SET_ATTRS";
+
+export const SET_PARAMS = "SET_PARAMS";
+
+export const RESET_SCREEN = "RESET_SCREEN";

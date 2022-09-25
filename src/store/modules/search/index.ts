@@ -1,5 +1,5 @@
-import { getHotKeywordData } from "@/api/search";
-import { HotKeyword, Price, Attrs } from "./interface";
+import { getHotKeywordData, getSearchData, getAttrsData } from "@/api/search";
+import { HotKeyword, Price, Attrs, SearchData, PageInfo } from "./interface";
 import * as Types from "./types";
 
 export default {
@@ -22,26 +22,11 @@ export default {
     },
     minPrice: "",
     maxPrice: "",
-    attrs: [
-      {
-        title: "颜色",
-        isHide: false,
-        param: [
-          { title: "黑色", active: false },
-          { title: "白色", active: false },
-          { title: "红色", active: false },
-        ],
-      },
-      {
-        title: "尺码",
-        isHide: false,
-        param: [
-          { title: "36", active: false },
-          { title: "37", active: false },
-          { title: "38", active: false },
-        ],
-      },
-    ],
+    attrs: [],
+    cid: "",
+    params: [],
+    searchData: [],
+    total: 0,
   },
   mutations: {
     // 设置历史记录关键词
@@ -120,6 +105,79 @@ export default {
       state.attrs[payload.index].param[payload.index2].active =
         !state.attrs[payload.index].param[payload.index2].active;
     },
+    // 设置搜索结果
+    [Types.SET_SEARCH_DATA](
+      state: { searchData: SearchData[]; total: number },
+      payload: { searchData: SearchData[]; total: number }
+    ) {
+      state.searchData = payload.searchData;
+      state.total = payload.total;
+    },
+    // 增加分页数据（第2页、第3页...）
+    [Types.SET_SEARCH_DATA_PAGE](
+      state: { searchData: SearchData[] },
+      payload: { searchData: SearchData[] }
+    ) {
+      if (payload.searchData.length > 0) {
+        for (let i = 0; i < payload.searchData.length; i++) {
+          state.searchData.push(payload.searchData[i]);
+        }
+      }
+    },
+    // 设置商品分类的cid
+    [Types.SET_CID](state: { cid: string }, payload: { cid: string }) {
+      state.cid = payload.cid;
+    },
+    [Types.SET_ATTRS](state: { attrs: Attrs[] }, payload: { attrs: Attrs[] }) {
+      state.attrs = payload.attrs;
+    },
+    // 设置属性的值
+    [Types.SET_PARAMS](state: { attrs: Attrs[]; params: string[] }) {
+      if (state.attrs.length > 0) {
+        state.params = [];
+        for (let i = 0; i < state.attrs.length; i++) {
+          for (let j = 0; j < state.attrs[i].param.length; j++) {
+            if (state.attrs[i].param[j].active) {
+              state.params.push(state.attrs[i].param[j].pid);
+            }
+          }
+        }
+      }
+    },
+    [Types.RESET_SCREEN](state: {
+      cid: string;
+      priceData: Price;
+      minPrice: string;
+      maxPrice: string;
+      attrs: Attrs[];
+      params: string[];
+    }) {
+      state.cid = "";
+
+      // 重置价格
+      if (state.priceData.items.length > 0) {
+        for (let i = 0; i < state.priceData.items.length; i++) {
+          if (state.priceData.items[i].active) {
+            state.priceData.items[i].active = false;
+            break;
+          }
+        }
+        state.minPrice = "";
+        state.maxPrice = "";
+      }
+
+      // 重置属性
+      if (state.attrs.length > 0) {
+        for (let i = 0; i < state.attrs.length; i++) {
+          for (let j = 0; j < state.attrs[i].param.length; j++) {
+            if (state.attrs[i].param[j].active) {
+              state.attrs[i].param[j].active = false;
+            }
+          }
+        }
+        state.params = [];
+      }
+    },
   },
   actions: {
     getHotKeyword(conText: any) {
@@ -131,9 +189,10 @@ export default {
         }
       );
     },
-    // 搜索页跨页面读取（首页）数据
+    // 选择分类
     selectClassify(conText: any, payload: { index: number }) {
       // console.log(conText);
+      // 搜索页跨页面读取（首页）数据
       if (conText.rootState.goods.classifys.length > 0) {
         for (let i = 0; i < conText.rootState.goods.classifys.length; i++) {
           if (i !== payload.index) {
@@ -150,7 +209,114 @@ export default {
         }
         conText.rootState.goods.classifys[payload.index].active =
           !conText.rootState.goods.classifys[payload.index].active;
+
+        const cid = conText.rootState.goods.classifys[payload.index].active
+          ? conText.rootState.goods.classifys[payload.index].cid
+          : "";
+        conText.commit(Types.SET_CID, { cid: cid });
       }
+    },
+    // 获取商品搜索结果
+    getSearch(
+      { commit }: any,
+      payload: {
+        keyword: string;
+        page?: number;
+        otype: string;
+        cid: string;
+        price1: string;
+        price2: string;
+        param: string;
+        success?: (pageNum: number) => void;
+      }
+    ) {
+      getSearchData(payload).then(
+        (res: {
+          code: number;
+          data: SearchData[];
+          pageinfo: PageInfo;
+          status: number;
+        }) => {
+          let pageNum = 0;
+          if (res.code === 200) {
+            pageNum = parseInt(res.pageinfo.pagenum);
+            commit(Types.SET_SEARCH_DATA, {
+              searchData: res.data,
+              total: res.pageinfo.total,
+            });
+          } else {
+            pageNum = 0;
+            commit(Types.SET_SEARCH_DATA, { searchData: [], total: 0 });
+          }
+          if (payload.success) {
+            payload.success(pageNum);
+          }
+        }
+      );
+    },
+    getSearchPage(
+      { commit }: any,
+      payload: {
+        keyword: string;
+        page?: number;
+        otype: string;
+        cid: string;
+        price1: string;
+        price2: string;
+        param: string;
+        success?: (pageNum: number) => void;
+      }
+    ) {
+      getSearchData(payload).then(
+        (res: {
+          code: number;
+          data: SearchData[];
+          pageinfo: PageInfo;
+          status: number;
+        }) => {
+          if (res.code === 200) {
+            commit(Types.SET_SEARCH_DATA_PAGE, { searchData: res.data });
+          }
+        }
+      );
+    },
+    // 获取商品属性
+    getAttrs(
+      { commit }: any,
+      payload: { keyword: string; success: () => void }
+    ) {
+      getAttrsData(payload.keyword).then(
+        (res: { code: number; data: Attrs[]; status: number }) => {
+          if (res.code === 200) {
+            for (let i = 0; i < res.data.length; i++) {
+              res.data[i].isHide = false;
+              for (let j = 0; j < res.data[i].param.length; j++) {
+                res.data[i].param[j].active = false;
+              }
+            }
+            commit(Types.SET_ATTRS, { attrs: res.data });
+          } else {
+            commit(Types.SET_ATTRS, { attrs: [] });
+          }
+          if (payload.success) {
+            payload.success();
+          }
+        }
+      );
+    },
+    // 筛选面板重置
+    resetScreen(conText: any) {
+      // 重置分类
+      if (conText.rootState.goods.classifys.length > 0) {
+        for (let i = 0; i < conText.rootState.goods.classifys.length; i++) {
+          if (conText.rootState.goods.classifys[i].active) {
+            conText.rootState.goods.classifys[i].active = false;
+            break;
+          }
+        }
+      }
+
+      conText.commit(Types.RESET_SCREEN);
     },
   },
 };

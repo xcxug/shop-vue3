@@ -36,47 +36,23 @@
       </div>
     </div>
     <div class="goods-main">
-      <div class="goods-list">
+      <div class="goods-list" v-for="(item, index) in searchData" :key="index">
         <div class="image">
-          <img src="//vueshop.glbuys.com/uploadfiles/1524554409.jpg" />
+          <img
+            src="../../../assets/images/common/lazyImg.jpg"
+            :data-echo="item.image"
+          />
         </div>
         <div class="goods-content">
-          <div class="goods-title">品牌男装</div>
-          <div class="price">¥100</div>
-          <div class="sales">销量<span>10</span>件</div>
+          <div class="goods-title">{{ item.title }}</div>
+          <div class="price">¥{{ item.price }}</div>
+          <div class="sales">
+            销量<span>{{ item.sales }}</span
+            >件
+          </div>
         </div>
       </div>
-      <div class="goods-list">
-        <div class="image">
-          <img src="//vueshop.glbuys.com/uploadfiles/1524554409.jpg" />
-        </div>
-        <div class="goods-content">
-          <div class="goods-title">品牌男装</div>
-          <div class="price">¥100</div>
-          <div class="sales">销量<span>10</span>件</div>
-        </div>
-      </div>
-      <div class="goods-list">
-        <div class="image">
-          <img src="//vueshop.glbuys.com/uploadfiles/1524554409.jpg" />
-        </div>
-        <div class="goods-content">
-          <div class="goods-title">品牌男装</div>
-          <div class="price">¥100</div>
-          <div class="sales">销量<span>10</span>件</div>
-        </div>
-      </div>
-      <div class="goods-list">
-        <div class="image">
-          <img src="//vueshop.glbuys.com/uploadfiles/1524554409.jpg" />
-        </div>
-        <div class="goods-content">
-          <div class="goods-title">品牌男装</div>
-          <div class="price">¥100</div>
-          <div class="sales">销量<span>10</span>件</div>
-        </div>
-      </div>
-      <div class="no-data">没有相关商品！</div>
+      <div class="no-data" v-show="searchData.length <= 0">没有相关商品！</div>
     </div>
     <div
       ref="mask"
@@ -163,9 +139,12 @@
         <div style="width: 100%; height: 1.2rem"></div>
       </div>
       <div class="handel-wrap">
-        <div class="item">共<span>10</span>件</div>
-        <div class="item reset">全部重置</div>
-        <div class="item sure">确定</div>
+        <div class="item">
+          共<span>{{ total }}</span
+          >件
+        </div>
+        <div class="item reset" @click="resetScreen()">全部重置</div>
+        <div class="item sure" @click="sureSubmit()">确定</div>
       </div>
     </div>
     <my-search
@@ -187,10 +166,12 @@ import {
   onMounted,
   onUnmounted,
   nextTick,
+  getCurrentInstance,
 } from "vue";
 import { useRouter, onBeforeRouteUpdate } from "vue-router";
 import { useStore } from "vuex";
 import IScroll from "@/assets/js/libs/iscroll";
+import UpRefresh from "@/assets/js/libs/uprefresh";
 import MySearch from "@/components/search";
 
 interface SearchShow {
@@ -209,6 +190,7 @@ export default defineComponent({
     MySearch,
   },
   setup() {
+    const { proxy }: any = getCurrentInstance();
     const router = useRouter();
     const store = useStore();
 
@@ -220,26 +202,37 @@ export default defineComponent({
       minPrice: any;
       maxPrice: any;
       attrs: any;
+      searchData: any;
+      cid: any;
+      params: any;
+      total: any;
       searchShow: SearchShow;
       keyword: string;
       isScreen: boolean;
       isPriceOrder: boolean;
+      otype: string;
       priceOrderList: PriceOrder[];
       isSalesOrder: boolean;
       isClassify: boolean;
       myScroll: any;
+      pullUp: any;
     }>({
       classifys: computed(() => store.state.goods.classifys),
       priceData: computed(() => store.state.search.priceData),
       minPrice: computed(() => store.state.search.minPrice),
       maxPrice: computed(() => store.state.search.maxPrice),
       attrs: computed(() => store.state.search.attrs),
+      searchData: computed(() => store.state.search.searchData),
+      cid: computed(() => store.state.search.cid),
+      params: computed(() => store.state.search.params),
+      total: computed(() => store.state.search.total),
       searchShow: {
         show: false,
       },
       keyword: "",
       isScreen: false,
       isPriceOrder: false,
+      otype: "all",
       priceOrderList: [
         { otype: "all", title: "综合", active: true },
         { otype: "up", title: "价格从低到高", active: false },
@@ -248,13 +241,21 @@ export default defineComponent({
       isSalesOrder: false,
       isClassify: false,
       myScroll: {},
+      pullUp: {},
     });
 
     onBeforeMount(() => {
       state.keyword = (router.currentRoute.value.query.keyword as string)
         ? (router.currentRoute.value.query.keyword as string)
         : "";
+      state.pullUp = new UpRefresh();
+
       getClassify();
+
+      resetScreen();
+      init();
+
+      getAttrs();
     });
 
     onMounted(() => {
@@ -268,10 +269,30 @@ export default defineComponent({
 
     onUnmounted(() => {
       screen.value?.removeEventListener("touchmove", disableScreenTochmove);
+
+      state.pullUp.uneventSrcoll();
     });
 
     onBeforeRouteUpdate((to, form, next) => {
       state.keyword = to.query.keyword as string;
+
+      state.isPriceOrder = false;
+      if (state.priceOrderList.length > 0) {
+        for (let i = 0; i < state.priceOrderList.length; i++) {
+          if (state.priceOrderList[i].active) {
+            state.priceOrderList[i].active = false;
+            break;
+          }
+        }
+      }
+      state.priceOrderList[0].active = true;
+      state.otype = "all";
+      state.isSalesOrder = false;
+      resetScreen();
+      init();
+
+      getAttrs();
+
       next();
     });
 
@@ -305,6 +326,8 @@ export default defineComponent({
         }
         state.priceOrderList[index].active = true;
         state.isSalesOrder = false;
+        state.otype = state.priceOrderList[index].otype;
+        init();
       }
     };
 
@@ -318,6 +341,8 @@ export default defineComponent({
           break;
         }
       }
+      state.otype = "sales";
+      init();
     };
 
     let selectClassify = (index: number) => {
@@ -355,6 +380,60 @@ export default defineComponent({
       });
     };
 
+    let resetScreen = () => {
+      store.dispatch("search/resetScreen");
+    };
+
+    let init = () => {
+      let jsonParams = {
+        keyword: state.keyword,
+        otype: state.otype,
+        cid: state.cid,
+        price1: state.minPrice,
+        price2: state.maxPrice,
+        param: JSON.stringify(state.params),
+      };
+      store.dispatch("search/getSearch", {
+        ...jsonParams,
+        success: (pageNum: number) => {
+          nextTick(() => {
+            proxy.$utils.lazyImg();
+          });
+
+          state.pullUp.init(
+            { curPage: 1, maxPage: pageNum, offsetBottom: 100 },
+            (page: number) => {
+              store.dispatch("search/getSearchPage", {
+                ...jsonParams,
+                page: page,
+              });
+            }
+          );
+        },
+      });
+    };
+
+    let getAttrs = () => {
+      store.dispatch("search/getAttrs", {
+        keyword: state.keyword,
+        success: () => {
+          nextTick(() => {
+            state.myScroll.refresh();
+          });
+        },
+      });
+    };
+
+    let sureSubmit = () => {
+      state.isScreen = false;
+      SET_PARAMS();
+      init();
+    };
+
+    let SET_PARAMS = () => {
+      store.commit("search/SET_PARAMS");
+    };
+
     let handleClose = (show: boolean) => {
       state.searchShow.show = show;
     };
@@ -372,6 +451,8 @@ export default defineComponent({
       SELECT_PRICE,
       HIDE_ATTR,
       SELECT_ATTR,
+      resetScreen,
+      sureSubmit,
       handleClose,
     };
   },

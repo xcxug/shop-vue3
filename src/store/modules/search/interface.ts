@@ -14,12 +14,30 @@ export interface PriceItem {
 }
 
 export interface Attrs {
-  title: string;
-  isHide: boolean;
+  attrid: string;
   param: AttrsParam[];
+  title: string;
+  isHide?: boolean;
 }
 
 export interface AttrsParam {
+  pid: string;
   title: string;
-  active: boolean;
+  active?: boolean;
+}
+
+export interface SearchData {
+  cid: string;
+  gid: string;
+  image: string;
+  price: string;
+  sales: string;
+  title: string;
+}
+
+export interface PageInfo {
+  page: string;
+  pagenum: string;
+  pagesize: string;
+  total: number;
 }
