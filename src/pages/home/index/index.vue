@@ -2,7 +2,7 @@
   <div class="page">
     <div :class="{ header: true, scroll: isScrollTop }">
       <div class="classify-icon" @click="$router.push('/goods/classify')"></div>
-      <div class="search-wrap">
+      <div class="search-wrap" @click="searchShow.show = true">
         <div class="search-icon"></div>
         <div class="text">请输入宝贝名称</div>
       </div>
@@ -153,6 +153,7 @@
         <div class="goods-price">¥{{ item.price }}</div>
       </div>
     </div>
+    <my-search :show="searchShow" @close="handleClose"></my-search>
   </div>
 </template>
 
@@ -172,9 +173,17 @@ import {
 } from "vue";
 import { useStore } from "vuex";
 import Swiper from "@/assets/js/libs/swiper";
+import MySearch from "@/components/search/index.vue";
+
+interface SearchShow {
+  show: boolean;
+}
 
 export default defineComponent({
   name: "component-index",
+  components: {
+    MySearch,
+  },
   setup() {
     const { proxy }: any = getCurrentInstance();
     const store = useStore();
@@ -187,9 +196,16 @@ export default defineComponent({
     let swiperContainer = ref<HTMLElement | null>(null);
     let swiperPagination = ref<HTMLElement | null>(null);
 
-    let state = reactive<{ isScrollTop: boolean; isScroll: boolean }>({
+    let state = reactive<{
+      isScrollTop: boolean;
+      isScroll: boolean;
+      searchShow: SearchShow;
+    }>({
       isScrollTop: false,
       isScroll: false,
+      searchShow: {
+        show: false,
+      },
     });
 
     onBeforeMount(() => {
@@ -278,6 +294,10 @@ export default defineComponent({
       });
     };
 
+    let handleClose = (show: boolean) => {
+      state.searchShow.show = show;
+    };
+
     return {
       swipers,
       navs,
@@ -286,6 +306,7 @@ export default defineComponent({
       swiperContainer,
       swiperPagination,
       ...toRefs(state),
+      handleClose,
     };
   },
 });
