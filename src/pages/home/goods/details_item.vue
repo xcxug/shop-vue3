@@ -2,43 +2,55 @@
   <div class="page">
     <div ref="swpierWrap" class="swpier-wrap swiper-container">
       <div class="swiper-wrapper">
-        <div class="swiper-slide">
-          <img src="//vueshop.glbuys.com/uploadfiles/1524556409.jpg" alt="" />
-        </div>
-        <div class="swiper-slide">
-          <img src="//vueshop.glbuys.com/uploadfiles/1524556419.jpg" alt="" />
+        <div
+          class="swiper-slide"
+          v-for="(item, index) in details.images"
+          :key="index"
+        >
+          <img :src="item" alt="" />
         </div>
       </div>
       <div ref="swiperPagination" class="swiper-pagination"></div>
     </div>
     <div class="goods-ele-main">
-      <div class="goods-title">
-        高跟鞋女2018新款春季单鞋仙女甜美链子尖头防水台细跟女鞋一字带
-      </div>
-      <div class="price">¥288</div>
+      <div class="goods-title">{{ details.title }}</div>
+      <div class="price">¥{{ details.price }}</div>
       <ul class="sales-wrap">
-        <li>快递：20元</li>
-        <li>月销量20件</li>
+        <li>快递：{{ details.freight }}元</li>
+        <li>月销量{{ details.sales }}件</li>
       </ul>
     </div>
     <div class="reviews-main">
-      <div class="reviews-title">商品评价（20）</div>
-      <div class="reviews-wrap">
-        <div class="reviews-list">
-          <div class="uinfo">
-            <div class="head">
-              <img
-                alt=""
-                src="//vueshop.glbuys.com/uploadfiles/1524556409.jpg"
-              />
+      <div class="reviews-title">商品评价（{{ total }}）</div>
+      <div v-show="reviews.length > 0">
+        <div class="reviews-wrap">
+          <div
+            class="reviews-list"
+            v-for="(item, index) in reviews"
+            :key="index"
+          >
+            <div class="uinfo">
+              <div class="head">
+                <img
+                  alt=""
+                  src="../../../assets/images/common/lazyImg.jpg"
+                  :data-echo="item.head"
+                />
+              </div>
+              <div class="nickname">{{ item.nickname }}</div>
             </div>
-            <div class="nickname">张三</div>
+            <div class="reviews-content" v-html="item.content"></div>
+            <div class="reviews-date">{{ item.times }}</div>
           </div>
-          <div class="reviews-content">评价内容</div>
-          <div class="reviews-date">2019-03-10</div>
+        </div>
+        <div
+          class="reviews-more"
+          @click="$router.replace('/goods/details/review?gid=' + gid)"
+        >
+          查看更多评价
         </div>
       </div>
-      <div class="reviews-more">查看更多评价</div>
+      <div class="no-data" v-show="reviews.length <= 0">暂无评价！</div>
     </div>
     <div class="bottom-btn-wrap">
       <div class="btn fav">收藏</div>
@@ -53,14 +65,12 @@
           <div class="close" @click="hidePanel()"></div>
         </div>
         <div ref="goodsImg" class="goods-img">
-          <img src="//vueshop.glbuys.com/uploadfiles/1524556409.jpg" alt="" />
+          <img :src="details.images && details.images[0]" alt="" />
         </div>
         <div class="goods-wrap">
-          <div class="goods-title">
-            高跟鞋女2018新款春季单鞋仙女甜美链子尖头防水台细跟女鞋一字带
-          </div>
-          <div class="price">¥29</div>
-          <div class="goods-code">商品编码:23123</div>
+          <div class="goods-title">{{ details.title }}</div>
+          <div class="price">¥{{ details.price }}</div>
+          <div class="goods-code">商品编码:{{ gid }}</div>
         </div>
       </div>
       <div class="attr-wrap">
@@ -104,8 +114,12 @@ import {
   reactive,
   toRefs,
   computed,
+  onBeforeMount,
   onMounted,
+  nextTick,
+  getCurrentInstance,
 } from "vue";
+import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { Toast } from "vant";
 import Swiper from "@/assets/js/libs/swiper";
@@ -114,6 +128,8 @@ import TweenMax from "@/assets/js/libs/TweenMax";
 export default defineComponent({
   name: "component-details-item",
   setup() {
+    const { proxy }: any = getCurrentInstance();
+    const router = useRouter();
     const store = useStore();
 
     let swpierWrap = ref<HTMLElement | null>(null);
@@ -123,15 +139,33 @@ export default defineComponent({
     let cartPanel = ref<HTMLElement | null>(null);
 
     let state = reactive<{
+      details: any;
+      total: any;
+      reviews: any;
       attrs: any;
       isPanel: boolean;
       isMove: boolean;
       amount: number;
+      gid: string;
     }>({
+      details: computed(() => store.state.goods.details),
+      total: computed(() => store.state.goodsReview.total),
+      reviews: computed(() => store.state.goodsReview.reviews),
       attrs: computed(() => store.state.goods.attrs),
       isPanel: false,
       isMove: true, // 加入购物车动画是否结束
       amount: 1,
+      gid: "",
+    });
+
+    onBeforeMount(() => {
+      state.gid = (router.currentRoute.value.query.gid as string)
+        ? (router.currentRoute.value.query.gid as string)
+        : "";
+
+      getDetails();
+      getReviews();
+      getSpec();
     });
 
     onMounted(() => {
@@ -142,6 +176,39 @@ export default defineComponent({
         autoplayDisableOnInteraction: false, // 用户操作swiper之后，是否禁止autoplay
       });
     });
+
+    let getDetails = () => {
+      store.dispatch("goods/getDetails", {
+        gid: state.gid,
+        success: () => {
+          nextTick(() => {
+            new Swiper(swpierWrap.value, {
+              autoplay: 3000,
+              pagination: swiperPagination.value,
+              paginationClickable: true,
+              autoplayDisableOnInteraction: false,
+            });
+          });
+        },
+      });
+    };
+
+    let getReviews = () => {
+      store.dispatch("goodsReview/getReviews", {
+        gid: state.gid,
+        success: () => {
+          nextTick(() => {
+            proxy.$utils.lazyImg();
+          });
+        },
+      });
+    };
+
+    let getSpec = () => {
+      store.dispatch("goods/getSpec", {
+        gid: state.gid,
+      });
+    };
 
     // 显示属性面板
     let showPanel = () => {

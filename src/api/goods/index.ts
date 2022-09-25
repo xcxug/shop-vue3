@@ -13,4 +13,26 @@ function getGoodsData(cid = "") {
   );
 }
 
-export { getClassifyData, getGoodsData };
+// 商品详情
+function getDetailsData(gid = "") {
+  return request(
+    config.baseApi +
+      "/home/goods/info?gid=" +
+      gid +
+      "&type=details&token=" +
+      config.token
+  );
+}
+
+// 获取商品规格
+function getSpecData(gid = "") {
+  return request(
+    config.baseApi +
+      "/home/goods/info?gid=" +
+      gid +
+      "&type=spec&token=" +
+      config.token
+  );
+}
+
+export { getClassifyData, getGoodsData, getDetailsData, getSpecData };
