@@ -23,7 +23,12 @@
       </div>
     </div>
     <div class="quick-nav">
-      <ul class="item" v-for="(item, index) in navs" :key="index">
+      <ul
+        class="item"
+        v-for="(item, index) in navs"
+        :key="index"
+        @click="$router.push('/goods/classify/item?cid=' + item.cid)"
+      >
         <li>
           <img
             src="../../../assets/images/common/lazyImg.jpg"
@@ -40,7 +45,14 @@
           —— {{ item.title }} ——
         </div>
         <div class="goods-row-1">
-          <div class="goods-column">
+          <div
+            class="goods-column"
+            @click="
+              $router.push(
+                '/goods/details?gid=' + (item.items && item.items[0].gid)
+              )
+            "
+          >
             <div class="goods-title">
               {{ item.items && item.items[0].title }}
             </div>
@@ -61,6 +73,7 @@
               class="goods-list"
               v-for="(item2, index2) in item.items.slice(1, 3)"
               :key="index2"
+              @click="$router.push('/goods/details?gid=' + item2.gid)"
             >
               <div class="goods-list-title">{{ item2.title }}</div>
               <div class="goods-list-tip">品质精挑</div>
@@ -79,6 +92,7 @@
             class="goods-list"
             v-for="(item2, index2) in item.items.slice(3, 7)"
             :key="index2"
+            @click="$router.push('/goods/details?gid=' + item2.gid)"
           >
             <div class="goods-title">{{ item2.title }}</div>
             <div class="goods-image">
@@ -100,6 +114,7 @@
             class="goods-column-2"
             v-for="(item2, index2) in item.items.slice(0, 2)"
             :key="index2"
+            @click="$router.push('/goods/details?gid=' + item2.gid)"
           >
             <div class="goods-title">{{ item2.title }}</div>
             <div class="goods-tip">火爆开售</div>
@@ -117,6 +132,7 @@
             class="goods-list"
             v-for="(item2, index2) in item.items.slice(2, 6)"
             :key="index2"
+            @click="$router.push('/goods/details?gid=' + item2.gid)"
           >
             <div class="goods-title">{{ item2.title }}</div>
             <div class="goods-image">
@@ -141,7 +157,12 @@
       <div class="line"></div>
     </div>
     <div class="goods-recom">
-      <div class="goods-list" v-for="(item, index) in recomGoods" :key="index">
+      <div
+        class="goods-list"
+        v-for="(item, index) in recomGoods"
+        :key="index"
+        @click="$router.push('/goods/details?gid=' + item.gid)"
+      >
         <div class="goods-image">
           <img
             src="../../../assets/images/common/lazyImg.jpg"

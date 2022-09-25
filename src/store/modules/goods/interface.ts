@@ -15,3 +15,13 @@ export interface GoodsItem {
   image: string;
   title: string;
 }
+
+export interface Attrs {
+  title: string;
+  values: AttrsItem[];
+}
+
+export interface AttrsItem {
+  value: string;
+  active: boolean;
+}

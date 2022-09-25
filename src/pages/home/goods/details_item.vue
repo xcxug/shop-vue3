@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div ref="swpier-wrap" class="swpier-wrap swiper-container">
+    <div ref="swpierWrap" class="swpier-wrap swiper-container">
       <div class="swiper-wrapper">
         <div class="swiper-slide">
           <img src="//vueshop.glbuys.com/uploadfiles/1524556409.jpg" alt="" />
@@ -9,7 +9,7 @@
           <img src="//vueshop.glbuys.com/uploadfiles/1524556419.jpg" alt="" />
         </div>
       </div>
-      <div class="swiper-pagination"></div>
+      <div ref="swiperPagination" class="swiper-pagination"></div>
     </div>
     <div class="goods-ele-main">
       <div class="goods-title">
@@ -42,17 +42,17 @@
     </div>
     <div class="bottom-btn-wrap">
       <div class="btn fav">收藏</div>
-      <div class="btn cart">加入购物车</div>
+      <div class="btn cart" @click="showPanel()">加入购物车</div>
     </div>
-    <div class="mask hide"></div>
-    <div ref="cart-panel" class="cart-panel down">
-      <div ref="goods-info" class="goods-info">
+    <div class="mask" v-show="isPanel" @click="hidePanel()"></div>
+    <div ref="cartPanel" :class="isPanel ? 'cart-panel up' : 'cart-panel down'">
+      <div ref="goodsInfo" class="goods-info">
         <div class="close-panel-wrap">
           <div class="spot"></div>
           <div class="line"></div>
-          <div class="close"></div>
+          <div class="close" @click="hidePanel()"></div>
         </div>
-        <div ref="goods-img" class="goods-img">
+        <div ref="goodsImg" class="goods-img">
           <img src="//vueshop.glbuys.com/uploadfiles/1524556409.jpg" alt="" />
         </div>
         <div class="goods-wrap">
@@ -64,41 +64,179 @@
         </div>
       </div>
       <div class="attr-wrap">
-        <div class="attr-list">
-          <div class="attr-name">颜色</div>
+        <div class="attr-list" v-for="(item, index) in attrs" :key="index">
+          <div class="attr-name">{{ item.title }}</div>
           <div class="val-wrap">
-            <span class="val active">白色</span><span class="val">红色</span>
-          </div>
-        </div>
-        <div class="attr-list">
-          <div class="attr-name">尺码</div>
-          <div class="val-wrap">
-            <span class="val active">19</span><span class="val">20</span>
+            <span
+              :class="{ val: true, active: item2.active }"
+              v-for="(item2, index2) in item.values"
+              :key="index2"
+              @click="SELECT_ATTR(index, index2)"
+              >{{ item2.value }}</span
+            >
           </div>
         </div>
       </div>
       <div class="amount-wrap">
         <div class="amount-name">购买数量</div>
         <div class="amount-input-wrap">
-          <div class="btn dec active">-</div>
-          <div class="amount-input"><input type="tel" value="1" /></div>
-          <div class="btn inc">+</div>
+          <div
+            :class="amount > 1 ? 'btn dec' : 'btn dec active'"
+            @click="amount > 1 ? --amount : 1"
+          >
+            -
+          </div>
+          <div class="amount-input">
+            <input type="tel" :value="amount" @input="setAmount($event)" />
+          </div>
+          <div class="btn inc" @click="++amount">+</div>
         </div>
       </div>
-      <div class="sure-btn">确定</div>
+      <div class="sure-btn" @click="sureSubmit()">确定</div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {
+  defineComponent,
+  ref,
+  reactive,
+  toRefs,
+  computed,
+  onMounted,
+} from "vue";
+import { useStore } from "vuex";
+import { Toast } from "vant";
+import Swiper from "@/assets/js/libs/swiper";
+import TweenMax from "@/assets/js/libs/TweenMax";
 
 export default defineComponent({
   name: "component-details-item",
+  setup() {
+    const store = useStore();
+
+    let swpierWrap = ref<HTMLElement | null>(null);
+    let swiperPagination = ref<HTMLElement | null>(null);
+    let goodsImg = ref<HTMLElement | null>(null);
+    let goodsInfo = ref<HTMLElement | null>(null);
+    let cartPanel = ref<HTMLElement | null>(null);
+
+    let state = reactive<{
+      attrs: any;
+      isPanel: boolean;
+      isMove: boolean;
+      amount: number;
+    }>({
+      attrs: computed(() => store.state.goods.attrs),
+      isPanel: false,
+      isMove: true, // 加入购物车动画是否结束
+      amount: 1,
+    });
+
+    onMounted(() => {
+      new Swiper(swpierWrap.value, {
+        autoplay: 3000,
+        pagination: swiperPagination.value,
+        paginationClickable: true, // 点击分页器的指示点分页器会控制Swiper切换
+        autoplayDisableOnInteraction: false, // 用户操作swiper之后，是否禁止autoplay
+      });
+    });
+
+    // 显示属性面板
+    let showPanel = () => {
+      state.isPanel = true;
+    };
+
+    // 隐藏属性面板
+    let hidePanel = () => {
+      if (state.isMove) {
+        state.isPanel = false;
+      }
+    };
+
+    let SELECT_ATTR = (index: number, index2: number) => {
+      store.commit("goods/SELECT_ATTR", { index: index, index2: index2 });
+    };
+
+    // 设置数量
+    let setAmount = (e: any) => {
+      let amount = e.target.value as string;
+      amount = amount.replace(/[^\d]/g, "");
+      state.amount = Number(amount);
+      if (!amount || amount === "0") {
+        state.amount = 1;
+      }
+    };
+
+    // 确认提交
+    let sureSubmit = () => {
+      if (state.attrs.length > 0) {
+        let isActive = false;
+        for (let i = 0; i < state.attrs.length; i++) {
+          isActive = false;
+          for (let j = 0; j < state.attrs[i].values.length; j++) {
+            if (state.attrs[i].values[j].active) {
+              isActive = true;
+              break;
+            }
+          }
+          if (!isActive) {
+            Toast("请选择" + state.attrs[i].title);
+            break;
+          }
+        }
+
+        if (isActive) {
+          addCart();
+        }
+      }
+    };
+
+    // 添加购物车
+    let addCart = () => {
+      if (state.isMove) {
+        state.isMove = false;
+        let cloneImg = goodsImg.value?.cloneNode(true);
+        let cartIcon = document.getElementById("cart-icon");
+        (cloneImg as any).style.cssText =
+          "position:absolute;z-index:100;left:0.2rem;top:0.2rem;width:0.4rem;height:0.4rem;";
+        goodsInfo.value?.appendChild(cloneImg as any);
+        let cartTop =
+          window.innerHeight - (cartPanel.value?.offsetHeight as number);
+        TweenMax.to(cloneImg, 2, {
+          bezier: [
+            { x: (cloneImg as any).offsetLeft, y: -100 },
+            { x: (cartIcon as any).offsetLeft, y: -cartTop },
+          ],
+          onComplete: () => {
+            (cloneImg as any).remove();
+            state.isMove = true;
+          },
+        });
+        TweenMax.to(cloneImg, 0.2, { rotation: 360, repeat: -1 });
+      }
+    };
+
+    return {
+      swpierWrap,
+      swiperPagination,
+      goodsImg,
+      goodsInfo,
+      cartPanel,
+      ...toRefs(state),
+      showPanel,
+      hidePanel,
+      SELECT_ATTR,
+      setAmount,
+      sureSubmit,
+    };
+  },
 });
 </script>
 
 <style scoped>
+@import "@/assets/css/common/swiper.css";
 .swpier-wrap {
   width: 100%;
   height: 7rem;

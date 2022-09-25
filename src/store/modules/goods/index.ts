@@ -1,5 +1,5 @@
 import { getClassifyData, getGoodsData } from "@/api/goods";
-import { Classifys, Goods } from "./interface";
+import { Classifys, Goods, Attrs } from "./interface";
 import * as Types from "./types";
 
 export default {
@@ -7,6 +7,42 @@ export default {
   state: {
     classifys: [],
     goods: [],
+    attrs: [
+      {
+        title: "颜色",
+        values: [
+          {
+            value: "黑色",
+            active: false,
+          },
+          {
+            value: "红色",
+            active: false,
+          },
+          {
+            value: "白色",
+            active: false,
+          },
+        ],
+      },
+      {
+        title: "尺码",
+        values: [
+          {
+            value: "36",
+            active: false,
+          },
+          {
+            value: "37",
+            active: false,
+          },
+          {
+            value: "38",
+            active: false,
+          },
+        ],
+      },
+    ],
   },
   mutations: {
     [Types.SET_CLASSIFYS](
@@ -31,6 +67,21 @@ export default {
     },
     [Types.SET_GOODS](state: { goods: Goods[] }, payload: { goods: Goods[] }) {
       state.goods = payload.goods;
+    },
+    // 选择商品属性
+    [Types.SELECT_ATTR](
+      state: { attrs: Attrs[] },
+      payload: { index: number; index2: number }
+    ) {
+      if (state.attrs.length > 0) {
+        for (let i = 0; i < state.attrs[payload.index].values.length; i++) {
+          if (state.attrs[payload.index].values[i].active) {
+            state.attrs[payload.index].values[i].active = false;
+            break;
+          }
+        }
+        state.attrs[payload.index].values[payload.index2].active = true;
+      }
     },
   },
   actions: {

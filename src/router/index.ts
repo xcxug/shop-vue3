@@ -47,6 +47,29 @@ const routes: Array<RouteRecordRaw> = [
     name: "goods-search",
     component: () => import("@/pages/home/goods/search.vue"),
   },
+  {
+    path: "/goods/details",
+    name: "goods-details",
+    component: () => import("@/pages/home/goods/details.vue"),
+    redirect: "/goods/details/item",
+    children: [
+      {
+        path: "item",
+        name: "goods-item",
+        component: () => import("@/pages/home/goods/details_item.vue"),
+      },
+      {
+        path: "content",
+        name: "goods-content",
+        component: () => import("@/pages/home/goods/details_content.vue"),
+      },
+      {
+        path: "review",
+        name: "goods-review",
+        component: () => import("@/pages/home/goods/details_review.vue"),
+      },
+    ],
+  },
 ];
 
 const router = createRouter({

@@ -36,7 +36,12 @@
       </div>
     </div>
     <div class="goods-main">
-      <div class="goods-list" v-for="(item, index) in searchData" :key="index">
+      <div
+        class="goods-list"
+        v-for="(item, index) in searchData"
+        :key="index"
+        @click="$router.push('/goods/details?gid=' + item.gid)"
+      >
         <div class="image">
           <img
             src="../../../assets/images/common/lazyImg.jpg"

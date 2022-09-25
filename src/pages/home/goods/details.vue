@@ -1,15 +1,24 @@
 <template>
   <div>
     <div class="details-header">
-      <div class="back"></div>
+      <div class="back" @click="$router.go(-1)"></div>
       <div class="tab-wrap">
-        <div class="tab-name active" @click="goPage('/goods/details')">
+        <div
+          :class="{ 'tab-name': true, active: itemStyle }"
+          @click="$router.replace('/goods/details?gid=' + gid)"
+        >
           商品
         </div>
-        <div class="tab-name" @click="goPage('/goods/details/content')">
+        <div
+          :class="{ 'tab-name': true, active: contentStyle }"
+          @click="$router.replace('/goods/details/content?gid=' + gid)"
+        >
           详情
         </div>
-        <div class="tab-name" @click="goPage('/goods/details/review')">
+        <div
+          :class="{ 'tab-name': true, active: reviewStyle }"
+          @click="$router.replace('/goods/details/review?gid=' + gid)"
+        >
           评价
         </div>
       </div>
@@ -24,19 +33,70 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { useRouter } from "vue-router";
+import { defineComponent, reactive, toRefs, onBeforeMount } from "vue";
+import { useRouter, onBeforeRouteUpdate } from "vue-router";
 
 export default defineComponent({
   name: "component-details",
   setup() {
     const router = useRouter();
 
+    let state = reactive<{
+      gid: string;
+      itemStyle: boolean;
+      contentStyle: boolean;
+      reviewStyle: boolean;
+    }>({
+      gid: "",
+      itemStyle: true,
+      contentStyle: false,
+      reviewStyle: false,
+    });
+
+    onBeforeMount(() => {
+      state.gid = (router.currentRoute.value.query.gid as string)
+        ? (router.currentRoute.value.query.gid as string)
+        : "";
+
+      changeTabStyle(router.currentRoute.value.name as string);
+    });
+
+    onBeforeRouteUpdate((to, form, next) => {
+      changeTabStyle(to.name as string);
+      next();
+    });
+
+    let changeTabStyle = (name: string) => {
+      switch (name) {
+        case "goods-item":
+          state.itemStyle = true;
+          state.contentStyle = false;
+          state.reviewStyle = false;
+          break;
+        case "goods-content":
+          state.itemStyle = false;
+          state.contentStyle = true;
+          state.reviewStyle = false;
+          break;
+        case "goods-review":
+          state.itemStyle = false;
+          state.contentStyle = false;
+          state.reviewStyle = true;
+          break;
+        default:
+          state.itemStyle = true;
+          state.contentStyle = false;
+          state.reviewStyle = false;
+          break;
+      }
+    };
+
     let goPage = (url: string) => {
       router.replace(url);
     };
 
     return {
+      ...toRefs(state),
       goPage,
     };
   },
