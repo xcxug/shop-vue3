@@ -1,205 +1,79 @@
 <template>
   <div ref="goodsClassifyContent" class="goods-content-main">
-    <div>
-      <div class="goods-wrap">
-        <div class="classify-name">裙装</div>
+    <div v-show="goods.length > 0">
+      <div class="goods-wrap" v-for="(item, index) in goods" :key="index">
+        <div class="classify-name">{{ item.title }}</div>
         <div class="goods-items-wrap">
-          <ul>
+          <ul v-for="(item2, index2) in item.goods" :key="index2">
             <li>
               <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
+                src="../../../assets/images/common/lazyImg.jpg"
+                :data-echo="item2.image"
                 alt=""
               />
             </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-        </div>
-      </div>
-      <div class="goods-wrap">
-        <div class="classify-name">裙装</div>
-        <div class="goods-items-wrap">
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-        </div>
-      </div>
-      <div class="goods-wrap">
-        <div class="classify-name">裙装</div>
-        <div class="goods-items-wrap">
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
-          </ul>
-          <ul>
-            <li>
-              <img
-                src="//vueshop.glbuys.com/uploadfiles/1484284030.jpg"
-                alt=""
-              />
-            </li>
-            <li>裙装66</li>
+            <li>{{ item2.title }}</li>
           </ul>
         </div>
       </div>
     </div>
+    <div v-show="goods.length <= 0" class="no-data">没有相关商品！</div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted } from "vue";
+import {
+  defineComponent,
+  ref,
+  reactive,
+  toRefs,
+  computed,
+  onBeforeMount,
+  onMounted,
+  onUnmounted,
+  nextTick,
+  getCurrentInstance,
+} from "vue";
+import { useRouter, onBeforeRouteUpdate } from "vue-router";
+import { useStore } from "vuex";
 import IScroll from "@/assets/js/libs/iscroll";
 
 export default defineComponent({
   name: "component-classify-item",
   setup() {
+    const { proxy }: any = getCurrentInstance();
+    const router = useRouter();
+    const store = useStore();
+
     let goodsClassifyContent = ref<HTMLElement | null>(null);
+
+    let state = reactive<{ goods: any; cid: string; myScroll: any }>({
+      goods: computed(() => store.state.goods.goods),
+      cid: "",
+      myScroll: {},
+    });
+
+    onBeforeMount(() => {
+      state.cid = (router.currentRoute.value.query.cid as string)
+        ? (router.currentRoute.value.query.cid as string)
+        : "";
+      init(state.cid);
+    });
 
     onMounted(() => {
       goodsClassifyContent.value?.addEventListener(
         "touchmove",
         scrollPreventDefault
       );
-      new IScroll(goodsClassifyContent.value, {
+      state.myScroll = new IScroll(goodsClassifyContent.value, {
         scrollX: false,
         scrollY: true,
         preventDefault: false,
+      });
+
+      // 滚动结束
+      state.myScroll.on("scrollEnd", () => {
+        proxy.$utils.lazyImg();
       });
     });
 
@@ -210,12 +84,34 @@ export default defineComponent({
       );
     });
 
+    // 在当前路由改变，但是该组件被复用时调用
+    onBeforeRouteUpdate((to, form, next) => {
+      // console.log(to.query.cid);
+      init(to.query.cid as string);
+      next();
+    });
+
     let scrollPreventDefault = (e: { preventDefault: () => void }) => {
       e.preventDefault();
     };
 
+    let init = (cid: string) => {
+      store.dispatch("goods/getGoods", {
+        cid,
+        success: () => {
+          nextTick(() => {
+            // 刷新
+            state.myScroll.refresh();
+
+            proxy.$utils.lazyImg();
+          });
+        },
+      });
+    };
+
     return {
       goodsClassifyContent,
+      ...toRefs(state),
     };
   },
 });
