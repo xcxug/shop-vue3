@@ -22,8 +22,12 @@
           评价
         </div>
       </div>
-      <div id="cart-icon" class="cart-icon" @click="goPage('/cart')">
-        <div class="spot"></div>
+      <div
+        id="cart-icon"
+        class="cart-icon"
+        @click="$router.push('/cart?from=goods_details')"
+      >
+        <div class="spot" v-show="$store.state.cart.cartData.length > 0"></div>
       </div>
     </div>
     <div class="sub-page">

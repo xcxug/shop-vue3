@@ -279,6 +279,41 @@ export default defineComponent({
           onComplete: () => {
             (cloneImg as any).remove();
             state.isMove = true;
+
+            // 加入购物车
+            let attrs = [],
+              param = [];
+
+            if (state.attrs.length > 0) {
+              for (let i = 0; i < state.attrs.length; i++) {
+                param = [];
+                for (let j = 0; j < state.attrs[i].values.length; j++) {
+                  if (state.attrs[i].values[j].active) {
+                    param.push({
+                      paramid: state.attrs[i].values[j].vid,
+                      title: state.attrs[i].values[j].value,
+                    });
+                  }
+                }
+                attrs.push({
+                  attrid: state.attrs[i].attrid,
+                  title: state.attrs[i].title,
+                  param: param,
+                });
+              }
+            }
+
+            let cartData = {
+              gid: state.gid,
+              title: state.details.title,
+              amount: state.amount,
+              price: state.details.price,
+              img: state.details.images[0],
+              checked: true,
+              freight: state.details.freight,
+              attrs: attrs,
+            };
+            store.commit("cart/ADD_ITEM", { cartData: cartData });
           },
         });
         TweenMax.to(cloneImg, 0.2, { rotation: 360, repeat: -1 });

@@ -9,6 +9,7 @@
       <ul :class="{ cart: true, active: cartStyle }" @click="goPage('/cart')">
         <li></li>
         <li>购物车</li>
+        <li class="spot" v-show="$store.state.cart.cartData.length > 0"></li>
       </ul>
       <ul :class="{ my: true, active: myStyle }" @click="goPage('/my')">
         <li></li>
@@ -107,6 +108,7 @@ export default defineComponent({
 
 .bottom-nav ul {
   width: 1rem;
+  position: relative;
 }
 
 .bottom-nav ul li:nth-child(1) {
@@ -122,6 +124,17 @@ export default defineComponent({
 
 .bottom-nav ul.active li:nth-child(2) {
   color: #eb1625;
+}
+
+.bottom-nav ul .spot {
+  width: 0.2rem;
+  height: 0.2rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 2;
+  background-color: #eb1625;
+  border-radius: 100%;
 }
 
 .bottom-nav ul.home li:nth-child(1) {
