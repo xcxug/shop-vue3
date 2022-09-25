@@ -29,6 +29,12 @@ const routes: Array<RouteRecordRaw> = [
     ],
   },
   {
+    path: "/login",
+    name: "login",
+    component: () => import("@/pages/home/login/index.vue"),
+    meta: { keepAlive: false },
+  },
+  {
     path: "/goods/classify",
     name: "goods-classify",
     component: () => import("@/pages/home/goods/classify.vue"),
@@ -83,6 +89,18 @@ const router = createRouter({
     }
   },
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.auth) {
+    if (localStorage["isLogin"]) {
+      next();
+    } else {
+      next("/login");
+    }
+  } else {
+    next();
+  }
 });
 
 export default router;

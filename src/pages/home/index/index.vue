@@ -6,7 +6,10 @@
         <div class="search-icon"></div>
         <div class="text">请输入宝贝名称</div>
       </div>
-      <div class="login">登录</div>
+      <div class="login" v-if="!isLogin" @click="$router.push('/login')">
+        登录
+      </div>
+      <div class="my-icon" v-else @click="$router.push('/my')"></div>
     </div>
     <div class="banner-wrap">
       <div class="swiper-container" ref="swiperContainer">
@@ -209,6 +212,7 @@ export default defineComponent({
     const { proxy }: any = getCurrentInstance();
     const store = useStore();
 
+    let isLogin = computed(() => store.state.user.isLogin);
     let swipers = computed(() => store.state.index.swipers);
     let navs = computed(() => store.state.index.navs);
     let goods = computed(() => store.state.index.goods);
@@ -320,6 +324,7 @@ export default defineComponent({
     };
 
     return {
+      isLogin,
       swipers,
       navs,
       goods,
@@ -399,6 +404,15 @@ export default defineComponent({
   height: 0.44rem;
   font-size: 0.32rem;
   color: #ffffff;
+}
+
+.header .my-icon {
+  width: 0.6rem;
+  height: 0.6rem;
+  background-image: url("../../../assets/images/home/index/my.png");
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .banner-wrap {
