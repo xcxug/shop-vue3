@@ -28,6 +28,20 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
+  {
+    path: "/goods/classify",
+    name: "goods-classify",
+    component: () => import("@/pages/home/goods/classify.vue"),
+    redirect: "/goods/classify/item", // 页面重定向
+    children: [
+      {
+        path: "item",
+        name: "goods-classify-item",
+        component: () => import("@/pages/home/goods/classify_item.vue"),
+        meta: { title: "商品分类" },
+      },
+    ],
+  },
 ];
 
 const router = createRouter({

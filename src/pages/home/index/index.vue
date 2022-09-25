@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div :class="{ header: true, scroll: isScrollTop }">
-      <div class="classify-icon"></div>
+      <div class="classify-icon" @click="$router.push('/goods/classify')"></div>
       <div class="search-wrap">
         <div class="search-icon"></div>
         <div class="text">请输入宝贝名称</div>
