@@ -1,4 +1,4 @@
-# shopvue3.0
+# shop-vue3
 
 ## Project setup
 ```
