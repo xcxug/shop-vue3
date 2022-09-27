@@ -3,16 +3,17 @@
     <SubHeader title="确认订单"></SubHeader>
     <div class="main">
       <div class="address-wrap" @click="$router.push('/address')">
-        <div class="persion-info">
-          <span>收货人：张三</span><span>13818273552</span>
+        <div class="persion-info" v-show="name ? true : false">
+          <span>收货人：{{ name }}</span
+          ><span>{{ cellphone }}</span>
         </div>
-        <div class="address">
+        <div class="address" v-show="name ? true : false">
           <img
             src="../../../assets/images/home/cart/map.png"
             alt="收货地址"
-          /><span>北京朝阳</span>
+          /><span>{{ showArea }}</span>
         </div>
-        <div v-show="false" class="address-null">
+        <div v-show="!name ? true : false" class="address-null">
           您的收货地址为空,点击添加收货地址
         </div>
         <div class="arrow"></div>
@@ -105,6 +106,26 @@ interface CartDataAttrsParam {
   title: string;
 }
 
+interface AddAddressData {
+  address: string;
+  aid: string;
+  area: string;
+  cellphone: string;
+  city: string;
+  name: string;
+  province: string;
+}
+
+interface DefaultAddressData {
+  address: string;
+  aid: string;
+  area: string;
+  cellphone: string;
+  city: string;
+  name: string;
+  province: string;
+}
+
 export default defineComponent({
   name: "component-order",
   components: {
@@ -119,6 +140,10 @@ export default defineComponent({
       newCartData: any;
       total: any;
       freight: any;
+      aid: string;
+      name: string;
+      cellphone: string;
+      showArea: string;
     }>({
       newCartData: computed(() => {
         if (store.state.cart.cartData.length > 0) {
@@ -132,10 +157,50 @@ export default defineComponent({
       }),
       total: computed(() => store.getters["cart/total"]),
       freight: computed(() => store.getters["cart/freight"]),
+      aid: sessionStorage["addsid"],
+      name: "",
+      cellphone: "",
+      showArea: "",
     });
 
     onBeforeMount(() => {
       proxy.$utils.safeUser();
+
+      if (state.aid) {
+        store.dispatch("address/getAddressInfo", {
+          aid: state.aid,
+          success: (res: {
+            code: number;
+            data: AddAddressData | string;
+            status: number;
+          }) => {
+            state.name = (res.data as AddAddressData).name;
+            state.cellphone = (res.data as AddAddressData).cellphone;
+            state.showArea =
+              (res.data as AddAddressData).province +
+              (res.data as AddAddressData).city +
+              (res.data as AddAddressData).area +
+              (res.data as AddAddressData).address;
+          },
+        });
+      } else {
+        store.dispatch("address/getDefaultAddress", {
+          success: (res: {
+            code: number;
+            data: DefaultAddressData | string;
+            status: number;
+          }) => {
+            sessionStorage["addsid"] = (res.data as DefaultAddressData).aid;
+            state.name = (res.data as DefaultAddressData).name;
+            state.cellphone = (res.data as DefaultAddressData).cellphone;
+            state.showArea =
+              (res.data as DefaultAddressData).province +
+              (res.data as DefaultAddressData).city +
+              (res.data as DefaultAddressData).area +
+              (res.data as DefaultAddressData).address;
+          },
+        });
+      }
     });
 
     onMounted(() => {

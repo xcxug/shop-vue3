@@ -9,7 +9,12 @@
         </div>
       </div>
       <template v-if="address.length > 0">
-        <div class="address-list" v-for="(item, index) in address" :key="index">
+        <div
+          class="address-list"
+          v-for="(item, index) in address"
+          :key="index"
+          @click="selectAddress(item.aid)"
+        >
           <div class="address-info-wrap">
             <div
               class="check-mark"
@@ -98,6 +103,7 @@ export default defineComponent({
       store.dispatch("address/getAddress");
     };
 
+    // 删除收货地址
     let delAddress = (index: number, aid: string) => {
       Dialog.confirm({
         title: "",
@@ -111,9 +117,16 @@ export default defineComponent({
         });
     };
 
+    // 选择收货地址
+    let selectAddress = (aid: string) => {
+      sessionStorage["addsid"] = aid;
+      router.go(-1);
+    };
+
     return {
       ...toRefs(state),
       delAddress,
+      selectAddress,
     };
   },
 });

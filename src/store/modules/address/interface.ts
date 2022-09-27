@@ -29,3 +29,13 @@ export interface AddressInfoData {
   name: string;
   province: string;
 }
+
+export interface DefaultAddressData {
+  address: string;
+  aid: string;
+  area: string;
+  cellphone: string;
+  city: string;
+  name: string;
+  province: string;
+}

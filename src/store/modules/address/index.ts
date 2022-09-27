@@ -4,8 +4,14 @@ import {
   addAddressData,
   getAddressInfoData,
   modAddressData,
+  getDefaultAddressData,
 } from "@/api/address";
-import { Address, AddAddressData, AddressInfoData } from "./interface";
+import {
+  Address,
+  AddAddressData,
+  AddressInfoData,
+  DefaultAddressData,
+} from "./interface";
 import * as Types from "./types";
 
 export default {
@@ -127,6 +133,31 @@ export default {
         (res: { code: number; data: string; status: number }) => {
           if (payload.success) {
             payload.success(res);
+          }
+        }
+      );
+    },
+    // 获取默认收货地址
+    getDefaultAddress(
+      conText: any,
+      payload: {
+        success: (res: {
+          code: number;
+          data: DefaultAddressData | string;
+          status: number;
+        }) => void;
+      }
+    ) {
+      getDefaultAddressData(conText.rootState.user.uid).then(
+        (res: {
+          code: number;
+          data: DefaultAddressData | string;
+          status: number;
+        }) => {
+          if (res.code === 200) {
+            if (payload.success) {
+              payload.success(res);
+            }
           }
         }
       );
