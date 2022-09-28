@@ -65,7 +65,7 @@
       <div class="price-wrap">
         <span>实际金额：</span><span>￥{{ total + freight }}</span>
       </div>
-      <div class="balance-btn">提交订单</div>
+      <div class="balance-btn" @click="submitOrder()">提交订单</div>
     </div>
   </div>
 </template>
@@ -144,6 +144,7 @@ export default defineComponent({
       name: string;
       cellphone: string;
       showArea: string;
+      isSubmit: boolean;
     }>({
       newCartData: computed(() => {
         if (store.state.cart.cartData.length > 0) {
@@ -161,6 +162,7 @@ export default defineComponent({
       name: "",
       cellphone: "",
       showArea: "",
+      isSubmit: true,
     });
 
     onBeforeMount(() => {
@@ -207,8 +209,28 @@ export default defineComponent({
       document.title = router.currentRoute.value.meta.title as string;
     });
 
+    // 提交订单
+    let submitOrder = () => {
+      if (state.total > 0) {
+        if (state.isSubmit) {
+          state.isSubmit = false;
+          store.dispatch("order/addOrder", {
+            freight: state.freight,
+            goodsData: JSON.stringify(store.state.cart.cartData),
+            addsid: sessionStorage["addsid"],
+            success: (res: { code: number; data: string; status: number }) => {
+              if (res.code === 200) {
+                router.push("/order/end");
+              }
+            },
+          });
+        }
+      }
+    };
+
     return {
       ...toRefs(state),
+      submitOrder,
     };
   },
 });

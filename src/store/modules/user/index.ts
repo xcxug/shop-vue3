@@ -63,6 +63,7 @@ export default {
       localStorage.removeItem("isLogin");
       localStorage.removeItem("authToken");
       localStorage.removeItem("cartData");
+      sessionStorage.removeItem("addsid");
     },
     [Types.SET_USER_INFO](
       state: {

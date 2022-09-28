@@ -6,6 +6,7 @@ import goodsReview from "./modules/goods/review";
 import cart from "./modules/cart";
 import user from "./modules/user";
 import address from "./modules/address";
+import order from "./modules/order";
 
 export default createStore({
   modules: {
@@ -16,5 +17,6 @@ export default createStore({
     cart,
     user,
     address,
+    order,
   },
 });

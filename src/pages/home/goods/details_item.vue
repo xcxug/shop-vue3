@@ -182,6 +182,7 @@ export default defineComponent({
         gid: state.gid,
         success: () => {
           nextTick(() => {
+            document.title = state.details.title;
             new Swiper(swpierWrap.value, {
               autoplay: 3000,
               pagination: swiperPagination.value,
