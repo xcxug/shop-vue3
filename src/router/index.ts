@@ -112,6 +112,37 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/home/address/mod.vue"),
     meta: { auth: true, title: "修改收货地址" },
   },
+  {
+    path: "/user/order",
+    name: "my-order",
+    component: () => import("@/pages/user/order/index.vue"),
+    redirect: "/user/order/list",
+    meta: { auth: true },
+    children: [
+      {
+        path: "list",
+        name: "order-list",
+        component: () => import("@/pages/user/order/list.vue"),
+        meta: { auth: true },
+      },
+      {
+        path: "review",
+        name: "order-review",
+        component: () => import("@/pages/user/order/review.vue"),
+        meta: { auth: true },
+      },
+    ],
+  },
+  {
+    path: "/user/order/details",
+    name: "order-details",
+    component: () => import("@/pages/user/order/details.vue"),
+  },
+  {
+    path: "/user/order/add_review",
+    name: "order-add-review",
+    component: () => import("@/pages/user/order/add_review.vue"),
+  },
 ];
 
 const router = createRouter({
