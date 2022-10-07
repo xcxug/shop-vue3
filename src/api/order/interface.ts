@@ -20,3 +20,8 @@ export interface SureOrderData {
   uid: string;
   orderNum: string;
 }
+
+export interface OrderInfoData {
+  uid: string;
+  orderNum: string;
+}

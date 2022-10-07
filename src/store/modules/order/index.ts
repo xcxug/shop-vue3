@@ -4,8 +4,14 @@ import {
   getMyOrderData,
   cancelOrderData,
   sureOrderData,
+  getOrderInfoData,
 } from "@/api/order";
-import { OrderNumData, MyOrderData, Pageinfo } from "./interface";
+import {
+  OrderNumData,
+  MyOrderData,
+  Pageinfo,
+  OrderInfoData,
+} from "./interface";
 import * as Types from "./types";
 
 export default {
@@ -13,6 +19,7 @@ export default {
   state: {
     orderNum: "",
     orders: [],
+    orderInfo: {},
   },
   mutations: {
     [Types.SET_ORDERNUM](
@@ -48,6 +55,13 @@ export default {
       payload: { index: number; status: string }
     ) {
       state.orders[payload.index].status = payload.status;
+    },
+    // 设置订单详情
+    [Types.SET_ORDER_INFO](
+      state: { orderInfo: OrderInfoData },
+      payload: { orderInfo: OrderInfoData }
+    ) {
+      state.orderInfo = payload.orderInfo;
     },
   },
   actions: {
@@ -146,6 +160,32 @@ export default {
             conText.commit(Types.SET_STATUS, {
               index: payload.index,
               status: payload.status,
+            });
+          }
+        }
+      );
+    },
+    // 订单详情
+    getOrderInfo(conText: any, payload: { orderNum: string }) {
+      getOrderInfoData({ uid: conText.rootState.user.uid, ...payload }).then(
+        (res: { code: number; data: OrderInfoData; status: number }) => {
+          if (res.code === 200) {
+            conText.commit(Types.SET_ORDER_INFO, {
+              orderInfo: {
+                ordernum: res.data.ordernum,
+                name: res.data.name,
+                cellphone: res.data.cellphone,
+                status: res.data.status,
+                province: res.data.province,
+                city: res.data.city,
+                area: res.data.area,
+                address: res.data.address,
+                freight: res.data.freight,
+                total: res.data.total,
+                truetotal: res.data.truetotal,
+                ordertime: res.data.ordertime,
+                goods: res.data.goods,
+              },
             });
           }
         }

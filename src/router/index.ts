@@ -137,6 +137,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/user/order/details",
     name: "order-details",
     component: () => import("@/pages/user/order/details.vue"),
+    meta: { auth: true, title: "订单详情" },
   },
   {
     path: "/user/order/add_review",

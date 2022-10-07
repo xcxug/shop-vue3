@@ -5,6 +5,7 @@ import {
   MyOrderData,
   CancelOrderData,
   SureOrderData,
+  OrderInfoData,
 } from "./interface";
 
 // 提交订单
@@ -64,10 +65,24 @@ function sureOrderData(data: SureOrderData) {
   );
 }
 
+// 获取订单详情
+function getOrderInfoData(data: OrderInfoData) {
+  return request(
+    config.baseApi +
+      "/user/myorder/desc?uid=" +
+      data.uid +
+      "&ordernum=" +
+      data.orderNum +
+      "&token=" +
+      config.token
+  );
+}
+
 export {
   addOrderData,
   getOrderNumData,
   getMyOrderData,
   cancelOrderData,
   sureOrderData,
+  getOrderInfoData,
 };

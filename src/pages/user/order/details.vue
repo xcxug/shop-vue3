@@ -1,12 +1,8 @@
 <template>
   <div class="page">
-    <div class="sub-header">
-      <div class="back"></div>
-      <div class="title">订单详情</div>
-      <div class="right-btn hide">保存</div>
-    </div>
+    <SubHeader title="订单详情"></SubHeader>
     <div class="main">
-      <div class="ordernum">订单编号：123456</div>
+      <div class="ordernum">订单编号：{{ orderInfo.ordernum }}</div>
       <div class="address-wrap">
         <div class="skew-wrap">
           <div class="skew"></div>
@@ -24,15 +20,19 @@
         </div>
         <div class="address-info">
           <div class="name">
-            <img src="../../../assets/images/home/main/my2.png" alt="" />张三
+            <img src="../../../assets/images/home/main/my2.png" alt="" />{{
+              orderInfo.name
+            }}
           </div>
           <div class="cellphone">
-            <img
-              src="../../../assets/images/common/cellphone.png"
-              alt=""
-            />13717625341
+            <img src="../../../assets/images/common/cellphone.png" alt="" />{{
+              orderInfo.cellphone
+            }}
           </div>
-          <div class="address">北京朝阳区</div>
+          <div class="address">
+            {{ orderInfo.province }}{{ orderInfo.city }}{{ orderInfo.area
+            }}{{ orderInfo.address }}
+          </div>
         </div>
         <div class="skew-wrap">
           <div class="skew"></div>
@@ -50,78 +50,115 @@
         </div>
       </div>
       <div class="buy-title">购买的宝贝</div>
-      <div class="goods-list">
-        <div class="image">
-          <img src="../../../assets/images/common/lazyImg.jpg" alt="" />
-        </div>
+      <div
+        class="goods-list"
+        v-for="(item, index) in orderInfo.goods"
+        :key="index"
+        @click="$router.push('/goods/details?gid=' + item.gid)"
+      >
+        <div class="image"><img :src="item.image" alt="" /></div>
         <div class="goods-info">
-          <div class="title">
-            高跟鞋女2018新款春季单鞋仙女甜美链子尖头防水台细跟女鞋一字带
-          </div>
+          <div class="title">{{ item.title }}</div>
           <div class="attr">
-            <span class="amount">x 20</span>
-            <span>颜色：白色</span><span>尺码：36</span>
+            <span class="amount">x {{ item.amount }}</span>
+            <span v-for="(item2, index2) in item.param" :key="index2"
+              >{{ item2.title }}：
+              <template v-for="item3 in item2.param">{{
+                item3.title
+              }}</template>
+            </span>
           </div>
         </div>
-        <div class="price">¥20</div>
-      </div>
-      <div class="goods-list">
-        <div class="image">
-          <img src="../../../assets/images/common/lazyImg.jpg" alt="" />
-        </div>
-        <div class="goods-info">
-          <div class="title">
-            高跟鞋女2018新款春季单鞋仙女甜美链子尖头防水台细跟女鞋一字带
-          </div>
-          <div class="attr">
-            <span class="amount">x 20</span>
-            <span>颜色：白色</span><span>尺码：36</span>
-          </div>
-        </div>
-        <div class="price">¥20</div>
-      </div>
-      <div class="goods-list">
-        <div class="image">
-          <img src="../../../assets/images/common/lazyImg.jpg" alt="" />
-        </div>
-        <div class="goods-info">
-          <div class="title">
-            高跟鞋女2018新款春季单鞋仙女甜美链子尖头防水台细跟女鞋一字带
-          </div>
-          <div class="attr">
-            <span class="amount">x 20</span>
-            <span>颜色：白色</span><span>尺码：36</span>
-          </div>
-        </div>
-        <div class="price">¥20</div>
+        <div class="price">¥{{ item.price }}</div>
       </div>
       <ul class="order-status">
         <li>支付状态</li>
-        <li>待付款</li>
+        <li>
+          {{
+            orderInfo.status == "0"
+              ? "待付款"
+              : orderInfo.status === "1"
+              ? "待收货"
+              : "已收货"
+          }}
+        </li>
       </ul>
       <div class="total-wrap">
         <ul class="total">
           <li>商品总额</li>
-          <li>¥200</li>
+          <li>¥{{ orderInfo.total }}</li>
         </ul>
         <ul class="total">
           <li>+运费</li>
-          <li>¥10</li>
+          <li>¥{{ orderInfo.freight }}</li>
         </ul>
       </div>
       <div class="true-total">
-        <div class="total">实付金额：<span>¥200</span></div>
-        <div class="order-time">下单时间：2019-03-19</div>
+        <div class="total">
+          实付金额：<span>¥{{ orderInfo.truetotal }}</span>
+        </div>
+        <div class="order-time">下单时间：{{ orderInfo.ordertime }}</div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {
+  defineComponent,
+  reactive,
+  toRefs,
+  computed,
+  onBeforeMount,
+  onMounted,
+  getCurrentInstance,
+} from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import SubHeader from "@/components/sub_header";
 
 export default defineComponent({
   name: "order-details",
+  components: {
+    SubHeader,
+  },
+  setup() {
+    const { proxy }: any = getCurrentInstance();
+    const router = useRouter();
+    const store = useStore();
+
+    let state = reactive<{
+      orderInfo: any;
+      ordernum: string;
+    }>({
+      orderInfo: computed(() => store.state.order.orderInfo),
+      ordernum: "",
+    });
+
+    onBeforeMount(() => {
+      proxy.$utils.safeUser();
+
+      state.ordernum = (router.currentRoute.value.query.ordernum as string)
+        ? (router.currentRoute.value.query.ordernum as string)
+        : "";
+
+      getOrderInfo();
+    });
+
+    onMounted(() => {
+      document.title = router.currentRoute.value.meta.title as string;
+    });
+
+    let getOrderInfo = () => {
+      store.dispatch("order/getOrderInfo", {
+        orderNum: state.ordernum,
+      });
+    };
+
+    return {
+      ...toRefs(state),
+    };
+  },
 });
 </script>
 
@@ -130,6 +167,7 @@ export default defineComponent({
   width: 100%;
   min-height: 100vh;
   background-color: #ffffff;
+  overflow: hidden;
 }
 
 .sub-header {

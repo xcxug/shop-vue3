@@ -35,3 +35,39 @@ export interface Pageinfo {
   pagenum: string;
   pagesize: string;
 }
+
+export interface OrderInfoData {
+  address: string;
+  area: string;
+  cellphone: string;
+  city: string;
+  freight: number;
+  goods: OrderInfoGoods[];
+  name: string;
+  ordernum: string;
+  ordertime: string;
+  province: string;
+  status: string;
+  total: number;
+  truetotal: number;
+}
+
+export interface OrderInfoGoods {
+  amount: string;
+  gid: string;
+  image: string;
+  param: OrderInfoParam[];
+  price: number;
+  title: string;
+}
+
+export interface OrderInfoParam {
+  attrid: string;
+  param: OrderInfoParamItem[];
+  title: string;
+}
+
+export interface OrderInfoParamItem {
+  paramid: string;
+  title: string;
+}
