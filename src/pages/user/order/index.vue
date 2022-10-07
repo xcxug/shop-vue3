@@ -15,6 +15,7 @@ import {
   toRefs,
   onBeforeMount,
   onMounted,
+  getCurrentInstance,
 } from "vue";
 import { useRouter, onBeforeRouteUpdate } from "vue-router";
 import SubHeader from "@/components/sub_header";
@@ -27,6 +28,7 @@ export default defineComponent({
     OrderTags,
   },
   setup() {
+    const { proxy }: any = getCurrentInstance();
     const router = useRouter();
 
     let state = reactive<{
@@ -38,6 +40,8 @@ export default defineComponent({
     });
 
     onBeforeMount(() => {
+      proxy.$utils.safeUser();
+
       state.status = (router.currentRoute.value.query.status as string)
         ? (router.currentRoute.value.query.status as string)
         : "all";
