@@ -39,11 +39,11 @@
           <div
             class="status-btn"
             v-if="item.status === '0'"
-            @click="cancelOrder(index, item.ordernum)"
+            @click.stop="cancelOrder(index, item.ordernum)"
           >
             取消订单
           </div>
-          <div class="status-btn" @click="sureOrder(index, item)">
+          <div class="status-btn" @click.stop="sureOrder(index, item)">
             {{
               item.status == "0"
                 ? "去付款"
