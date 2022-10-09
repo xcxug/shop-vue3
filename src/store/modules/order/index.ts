@@ -5,12 +5,14 @@ import {
   cancelOrderData,
   sureOrderData,
   getOrderInfoData,
+  getReviewOrderData,
 } from "@/api/order";
 import {
   OrderNumData,
   MyOrderData,
   Pageinfo,
   OrderInfoData,
+  ReviewOrderData,
 } from "./interface";
 import * as Types from "./types";
 
@@ -20,6 +22,7 @@ export default {
     orderNum: "",
     orders: [],
     orderInfo: {},
+    reviewOrders: [],
   },
   mutations: {
     [Types.SET_ORDERNUM](
@@ -62,6 +65,20 @@ export default {
       payload: { orderInfo: OrderInfoData }
     ) {
       state.orderInfo = payload.orderInfo;
+    },
+    // 设置待评价订单
+    [Types.SET_REVIEW_ORDERS](
+      state: { reviewOrders: ReviewOrderData[] },
+      payload: { reviewOrders: ReviewOrderData[] }
+    ) {
+      state.reviewOrders = payload.reviewOrders;
+    },
+    // 设置待评价订单
+    [Types.SET_REVIEW_ORDERS_PAGE](
+      state: { reviewOrders: ReviewOrderData[] },
+      payload: { reviewOrders: ReviewOrderData[] }
+    ) {
+      state.reviewOrders.push(...payload.reviewOrders);
     },
   },
   actions: {
@@ -186,6 +203,56 @@ export default {
                 ordertime: res.data.ordertime,
                 goods: res.data.goods,
               },
+            });
+          }
+        }
+      );
+    },
+    // 待评价订单
+    getReviewOrder(
+      conText: any,
+      payload: {
+        page: number;
+        success: (pageNum: number) => void;
+      }
+    ) {
+      getReviewOrderData({ uid: conText.rootState.user.uid, ...payload }).then(
+        (res: {
+          code: number;
+          data: ReviewOrderData[];
+          pageinfo: Pageinfo;
+          status: number;
+        }) => {
+          let pageNum = 0;
+          if (res.code === 200) {
+            pageNum = parseInt(res.pageinfo.pagenum);
+            conText.commit(Types.SET_REVIEW_ORDERS, { reviewOrders: res.data });
+          } else {
+            pageNum = 0;
+            conText.commit(Types.SET_REVIEW_ORDERS, { reviewOrders: [] });
+          }
+          if (payload.success) {
+            payload.success(pageNum);
+          }
+        }
+      );
+    },
+    getReviewOrderPage(
+      conText: any,
+      payload: {
+        page: number;
+      }
+    ) {
+      getReviewOrderData({ uid: conText.rootState.user.uid, ...payload }).then(
+        (res: {
+          code: number;
+          data: ReviewOrderData[];
+          pageinfo: Pageinfo;
+          status: number;
+        }) => {
+          if (res.code === 200) {
+            conText.commit(Types.SET_REVIEW_ORDERS_PAGE, {
+              reviewOrders: res.data,
             });
           }
         }

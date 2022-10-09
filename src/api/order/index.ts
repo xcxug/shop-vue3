@@ -6,6 +6,7 @@ import {
   CancelOrderData,
   SureOrderData,
   OrderInfoData,
+  ReviewOrderData,
 } from "./interface";
 
 // 提交订单
@@ -78,6 +79,19 @@ function getOrderInfoData(data: OrderInfoData) {
   );
 }
 
+// 待评价订单
+function getReviewOrderData(data: ReviewOrderData) {
+  return request(
+    config.baseApi +
+      "/user/myorder/reviewOrder?uid=" +
+      data.uid +
+      "&page=" +
+      data.page +
+      "&token=" +
+      config.token
+  );
+}
+
 export {
   addOrderData,
   getOrderNumData,
@@ -85,4 +99,5 @@ export {
   cancelOrderData,
   sureOrderData,
   getOrderInfoData,
+  getReviewOrderData,
 };

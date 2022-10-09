@@ -71,3 +71,20 @@ export interface OrderInfoParamItem {
   paramid: string;
   title: string;
 }
+
+export interface ReviewOrderData {
+  goods: Goods[];
+  ordernum: string;
+  status: string;
+  total: number;
+}
+
+export interface ReviewOrderGoods {
+  amount: string;
+  freight: string;
+  gid: string;
+  image: string;
+  isreview: string;
+  price: string;
+  title: string;
+}

@@ -9,3 +9,7 @@ export const DEL_ORDERS = "DEL_ORDERS";
 export const SET_STATUS = "SET_STATUS";
 
 export const SET_ORDER_INFO = "SET_ORDER_INFO";
+
+export const SET_REVIEW_ORDERS = "SET_REVIEW_ORDERS";
+
+export const SET_REVIEW_ORDERS_PAGE = "SET_REVIEW_ORDERS_PAGE";
