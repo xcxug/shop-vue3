@@ -111,7 +111,7 @@ export default {
         }) => {
           let pageNum = 0;
           if (res.code === 200) {
-            pageNum = Number(res.pageinfo.pagenum);
+            pageNum = parseInt(res.pageinfo.pagenum);
             conText.commit(Types.SET_ORDERS, { orders: res.data });
           } else {
             pageNum = 0;
