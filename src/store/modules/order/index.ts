@@ -6,6 +6,8 @@ import {
   sureOrderData,
   getOrderInfoData,
   getReviewOrderData,
+  getReviewServiceData,
+  addReviewData,
 } from "@/api/order";
 import {
   OrderNumData,
@@ -13,6 +15,7 @@ import {
   Pageinfo,
   OrderInfoData,
   ReviewOrderData,
+  ReviewServiceData,
 } from "./interface";
 import * as Types from "./types";
 
@@ -23,6 +26,7 @@ export default {
     orders: [],
     orderInfo: {},
     reviewOrders: [],
+    reviewServices: [],
   },
   mutations: {
     [Types.SET_ORDERNUM](
@@ -79,6 +83,38 @@ export default {
       payload: { reviewOrders: ReviewOrderData[] }
     ) {
       state.reviewOrders.push(...payload.reviewOrders);
+    },
+    // 设置评价服务选项
+    [Types.SET_REVIEW_SERVICES](
+      state: { reviewServices: ReviewServiceData[] },
+      payload: { reviewServices: ReviewServiceData[] }
+    ) {
+      state.reviewServices = payload.reviewServices;
+    },
+    // 设置评价分数
+    [Types.SET_REVIEW_SCORE](
+      state: { reviewServices: ReviewServiceData[] },
+      payload: {
+        index: number;
+        index2: number;
+        score: number;
+      }
+    ) {
+      if (state.reviewServices.length > 0) {
+        for (
+          let i = payload.index2 + 1;
+          i < state.reviewServices[payload.index].scores.length;
+          i++
+        ) {
+          state.reviewServices[payload.index].scores[i].active = false;
+        }
+
+        for (let i = 0; i <= payload.index2; i++) {
+          state.reviewServices[payload.index].scores[i].active = true;
+        }
+
+        state.reviewServices[payload.index].score = payload.score;
+      }
     },
   },
   actions: {
@@ -254,6 +290,47 @@ export default {
             conText.commit(Types.SET_REVIEW_ORDERS_PAGE, {
               reviewOrders: res.data,
             });
+          }
+        }
+      );
+    },
+    // 评价服务选项
+    getReviewService(conText: any) {
+      getReviewServiceData().then(
+        (res: { code: number; data: ReviewServiceData[]; status: number }) => {
+          if (res.code === 200) {
+            for (let i = 0; i < res.data.length; i++) {
+              res.data[i].score = 5;
+              res.data[i].scores = [
+                { value: 1, active: true },
+                { value: 2, active: true },
+                { value: 3, active: true },
+                { value: 4, active: true },
+                { value: 5, active: true },
+              ];
+            }
+            conText.commit(Types.SET_REVIEW_SERVICES, {
+              reviewServices: res.data,
+            });
+          }
+        }
+      );
+    },
+    // 提交评价
+    addReview(
+      conText: any,
+      payload: {
+        gid: string;
+        content: string;
+        ordernum: string;
+        rsdata: string;
+        success: (res: { code: number; data: string; status: number }) => void;
+      }
+    ) {
+      addReviewData({ uid: conText.rootState.user.uid, ...payload }).then(
+        (res: { code: number; data: string; status: number }) => {
+          if (payload.success) {
+            payload.success(res);
           }
         }
       );

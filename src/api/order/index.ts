@@ -7,6 +7,7 @@ import {
   SureOrderData,
   OrderInfoData,
   ReviewOrderData,
+  AddReviewData,
 } from "./interface";
 
 // 提交订单
@@ -92,6 +93,22 @@ function getReviewOrderData(data: ReviewOrderData) {
   );
 }
 
+// 评价项目选项
+function getReviewServiceData() {
+  return request(
+    config.baseApi + "/home/reviews/service?token=" + config.token
+  );
+}
+
+// 提交评价
+function addReviewData(data: AddReviewData) {
+  return request(
+    config.baseApi + "/home/reviews/add?token=" + config.token,
+    "post",
+    data
+  );
+}
+
 export {
   addOrderData,
   getOrderNumData,
@@ -100,4 +117,6 @@ export {
   sureOrderData,
   getOrderInfoData,
   getReviewOrderData,
+  getReviewServiceData,
+  addReviewData,
 };

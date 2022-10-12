@@ -32,7 +32,17 @@
         </div>
         <div class="title">{{ item2.title }}</div>
         <div class="amount">x {{ item2.amount }}</div>
-        <div class="status-btn">
+        <div
+          class="status-btn"
+          @click.stop="
+            $router.push(
+              '/user/order/add_review?gid=' +
+                item2.gid +
+                '&ordernum=' +
+                item.ordernum
+            )
+          "
+        >
           {{ item2.isreview === "0" ? "评价" : "追加评价" }}
         </div>
       </div>

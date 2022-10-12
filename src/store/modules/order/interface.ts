@@ -88,3 +88,15 @@ export interface ReviewOrderGoods {
   price: string;
   title: string;
 }
+
+export interface ReviewServiceData {
+  rsid: string;
+  title: string;
+  score: number; // 非接口返回
+  scores: Scores[]; // 非接口返回
+}
+
+export interface Scores {
+  value: number;
+  active: boolean;
+}
