@@ -35,7 +35,7 @@
       </ul>
     </div>
     <van-action-sheet
-      v-model="isGender"
+      v-model:show="isGender"
       :actions="genders"
       cancel-text="取消"
       title="请选择性别"
