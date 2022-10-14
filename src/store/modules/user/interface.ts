@@ -15,3 +15,8 @@ export interface UserInfoData {
   head: string;
   points: number;
 }
+
+export interface UploadHeadData {
+  msbox: string;
+  msg: string;
+}

@@ -6,8 +6,15 @@ import {
   isRegData,
   regUserData,
   getUserInfoData,
+  uploadHeadData,
+  updateUserInfoData,
 } from "@/api/user";
-import { LoginData, IsRegData, UserInfoData } from "./interface";
+import {
+  LoginData,
+  IsRegData,
+  UserInfoData,
+  UploadHeadData,
+} from "./interface";
 import * as Types from "./types";
 
 export default {
@@ -177,7 +184,12 @@ export default {
       );
     },
     // 获取会员信息
-    getUserInfo(conText: any) {
+    getUserInfo(
+      conText: any,
+      payload: {
+        success: (data: UserInfoData | string) => void;
+      }
+    ) {
       getUserInfoData(conText.state.uid).then(
         (res: {
           code: number;
@@ -190,6 +202,48 @@ export default {
               head: (res.data as UserInfoData).head,
               points: (res.data as UserInfoData).points,
             });
+
+            if (payload && payload.success) {
+              payload.success(res.data);
+            }
+          }
+        }
+      );
+    },
+    // 上传头像
+    uploadHead(
+      conText: any,
+      payload: {
+        headfile: any;
+        success: (res: {
+          code: number;
+          data: UploadHeadData;
+          status: number;
+        }) => void;
+      }
+    ) {
+      uploadHeadData(payload).then(
+        (res: { code: number; data: UploadHeadData; status: number }) => {
+          if (payload.success) {
+            payload.success(res);
+          }
+        }
+      );
+    },
+    // 修改会员信息
+    updateUserInfo(
+      conText: any,
+      payload: {
+        head: string;
+        nickname: string;
+        gender: string;
+        success: (res: { code: number; data: string; status: number }) => void;
+      }
+    ) {
+      updateUserInfoData({ uid: conText.state.uid, ...payload }).then(
+        (res: { code: number; data: string; status: number }) => {
+          if (payload.success) {
+            payload.success(res);
           }
         }
       );

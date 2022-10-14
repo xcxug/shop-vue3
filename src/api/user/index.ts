@@ -5,6 +5,8 @@ import {
   SafeUserData,
   SafeOutLoginData,
   RegUserData,
+  UploadHeadData,
+  UpdateUserInfoData,
 } from "./interface";
 
 // 会员登录
@@ -72,6 +74,24 @@ function getUserInfoData(uid: string) {
   );
 }
 
+// 上传头像
+function uploadHeadData(data: UploadHeadData) {
+  return request(
+    config.baseApi + "/user/myinfo/formdatahead?token=" + config.token,
+    "file",
+    data
+  );
+}
+
+// 修改会员信息
+function updateUserInfoData(data: UpdateUserInfoData) {
+  return request(
+    config.baseApi + "/user/myinfo/updateuser?token=" + config.token,
+    "post",
+    data
+  );
+}
+
 export {
   loginData,
   safeUserData,
@@ -80,4 +100,6 @@ export {
   isRegData,
   regUserData,
   getUserInfoData,
+  uploadHeadData,
+  updateUserInfoData,
 };

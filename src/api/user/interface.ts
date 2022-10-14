@@ -17,3 +17,14 @@ export interface RegUserData {
   password: string;
   vcode: string;
 }
+
+export interface UploadHeadData {
+  headfile: any;
+}
+
+export interface UpdateUserInfoData {
+  uid: string;
+  head: string;
+  nickname: string;
+  gender: string;
+}
