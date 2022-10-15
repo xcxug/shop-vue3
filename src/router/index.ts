@@ -175,6 +175,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/user/bind_cellphone/index.vue"),
     meta: { auth: true, title: "绑定手机号" },
   },
+  {
+    path: "/user/mod_password",
+    name: "mod-password",
+    component: () => import("@/pages/user/mod_password/index.vue"),
+    meta: { auth: true, title: "修改密码" },
+  },
 ];
 
 const router = createRouter({

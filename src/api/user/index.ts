@@ -8,6 +8,7 @@ import {
   UploadHeadData,
   UpdateUserInfoData,
   UpdateCellphoneData,
+  updatePasswordData,
 } from "./interface";
 
 // 会员登录
@@ -102,6 +103,15 @@ function updateCellphoneData(data: UpdateCellphoneData) {
   );
 }
 
+// 修改密码
+function updatePasswordData(data: updatePasswordData) {
+  return request(
+    config.baseApi + "/user/myinfo/modpwd?token=" + config.token,
+    "post",
+    data
+  );
+}
+
 export {
   loginData,
   safeUserData,
@@ -113,4 +123,5 @@ export {
   uploadHeadData,
   updateUserInfoData,
   updateCellphoneData,
+  updatePasswordData,
 };

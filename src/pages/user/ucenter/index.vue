@@ -48,7 +48,7 @@
         <li>绑定手机</li>
         <li></li>
       </ul>
-      <ul>
+      <ul @click="goPage('/user/mod_password')">
         <li>修改密码</li>
         <li></li>
       </ul>

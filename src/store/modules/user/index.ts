@@ -9,6 +9,7 @@ import {
   uploadHeadData,
   updateUserInfoData,
   updateCellphoneData,
+  updatePasswordData,
 } from "@/api/user";
 import {
   LoginData,
@@ -259,6 +260,22 @@ export default {
       }
     ) {
       updateCellphoneData({ uid: conText.state.uid, ...payload }).then(
+        (res: { code: number; data: string; status: number }) => {
+          if (payload.success) {
+            payload.success(res);
+          }
+        }
+      );
+    },
+    // 修改密码
+    updatePassword(
+      conText: any,
+      payload: {
+        password: string;
+        success: (res: { code: number; data: string; status: number }) => void;
+      }
+    ) {
+      updatePasswordData({ uid: conText.state.uid, ...payload }).then(
         (res: { code: number; data: string; status: number }) => {
           if (payload.success) {
             payload.success(res);

@@ -34,3 +34,8 @@ export interface UpdateCellphoneData {
   cellphone: string;
   vcode: string;
 }
+
+export interface updatePasswordData {
+  uid: string;
+  password: string;
+}
