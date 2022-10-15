@@ -44,7 +44,7 @@
         <li>收货地址</li>
         <li></li>
       </ul>
-      <ul>
+      <ul @click="goPage('/user/bind_cellphone')">
         <li>绑定手机</li>
         <li></li>
       </ul>

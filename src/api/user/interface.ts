@@ -28,3 +28,9 @@ export interface UpdateUserInfoData {
   nickname: string;
   gender: string;
 }
+
+export interface UpdateCellphoneData {
+  uid: string;
+  cellphone: string;
+  vcode: string;
+}

@@ -7,6 +7,7 @@ import {
   RegUserData,
   UploadHeadData,
   UpdateUserInfoData,
+  UpdateCellphoneData,
 } from "./interface";
 
 // 会员登录
@@ -92,6 +93,15 @@ function updateUserInfoData(data: UpdateUserInfoData) {
   );
 }
 
+// 修改手机号
+function updateCellphoneData(data: UpdateCellphoneData) {
+  return request(
+    config.baseApi + "/user/myinfo/updatecellphone?token=" + config.token,
+    "post",
+    data
+  );
+}
+
 export {
   loginData,
   safeUserData,
@@ -102,4 +112,5 @@ export {
   getUserInfoData,
   uploadHeadData,
   updateUserInfoData,
+  updateCellphoneData,
 };

@@ -8,6 +8,7 @@ import {
   getUserInfoData,
   uploadHeadData,
   updateUserInfoData,
+  updateCellphoneData,
 } from "@/api/user";
 import {
   LoginData,
@@ -241,6 +242,23 @@ export default {
       }
     ) {
       updateUserInfoData({ uid: conText.state.uid, ...payload }).then(
+        (res: { code: number; data: string; status: number }) => {
+          if (payload.success) {
+            payload.success(res);
+          }
+        }
+      );
+    },
+    // 修改手机号
+    updateCellphone(
+      conText: any,
+      payload: {
+        cellphone: string;
+        vcode: string;
+        success: (res: { code: number; data: string; status: number }) => void;
+      }
+    ) {
+      updateCellphoneData({ uid: conText.state.uid, ...payload }).then(
         (res: { code: number; data: string; status: number }) => {
           if (payload.success) {
             payload.success(res);
