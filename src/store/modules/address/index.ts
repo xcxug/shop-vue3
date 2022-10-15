@@ -46,11 +46,22 @@ export default {
       );
     },
     // 删除收货地址
-    delAddress(conText: any, payload: { index: string; aid: string }) {
+    delAddress(
+      conText: any,
+      payload: {
+        index: string;
+        aid: string;
+        success: () => void;
+      }
+    ) {
       delAddressData({ uid: conText.rootState.user.uid, ...payload }).then(
         (res: { code: number; data: string; status: number }) => {
           if (res.code === 200) {
             conText.commit(Types.DEL_ADDRESS, { index: payload.index });
+          }
+
+          if (payload.success) {
+            payload.success();
           }
         }
       );

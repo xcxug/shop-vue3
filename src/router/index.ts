@@ -151,6 +151,24 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/user/profile/index.vue"),
     meta: { auth: true, title: "个人资料" },
   },
+  {
+    path: "/user/address",
+    name: "user-address",
+    component: () => import("@/pages/user/address/index.vue"),
+    meta: { auth: true, title: "收货地址管理" },
+  },
+  {
+    path: "/user/address/add",
+    name: "user-address-add",
+    component: () => import("@/pages/user/address/add.vue"),
+    meta: { auth: true, title: "添加收货地址" },
+  },
+  {
+    path: "/user/address/mod",
+    name: "user-address-mod",
+    component: () => import("@/pages/user/address/mod.vue"),
+    meta: { auth: true, title: "修改收货地址" },
+  },
 ];
 
 const router = createRouter({
