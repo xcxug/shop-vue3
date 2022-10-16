@@ -227,7 +227,7 @@ export default {
         price1: string;
         price2: string;
         param: string;
-        success?: (pageNum: number) => void;
+        success: (pageNum: number) => void;
       }
     ) {
       getSearchData(payload).then(
@@ -264,7 +264,7 @@ export default {
         price1: string;
         price2: string;
         param: string;
-        success?: (pageNum: number) => void;
+        success: () => void;
       }
     ) {
       getSearchData(payload).then(
@@ -276,6 +276,9 @@ export default {
         }) => {
           if (res.code === 200) {
             commit(Types.SET_SEARCH_DATA_PAGE, { searchData: res.data });
+            if (payload.success) {
+              payload.success();
+            }
           }
         }
       );

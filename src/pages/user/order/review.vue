@@ -103,6 +103,9 @@ export default defineComponent({
             (page: number) => {
               store.dispatch("order/getReviewOrderPage", {
                 page: page,
+                success: () => {
+                  proxy.$utils.lazyImg();
+                },
               });
             }
           );

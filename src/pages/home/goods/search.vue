@@ -411,6 +411,9 @@ export default defineComponent({
               store.dispatch("search/getSearchPage", {
                 ...jsonParams,
                 page: page,
+                success: () => {
+                  proxy.$utils.lazyImg();
+                },
               });
             }
           );

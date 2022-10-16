@@ -177,7 +177,10 @@ export default {
       );
     },
     // 我的订单分页
-    getMyOrderPage(conText: any, payload: { status: string; page: number }) {
+    getMyOrderPage(
+      conText: any,
+      payload: { status: string; page: number; success: () => void }
+    ) {
       getMyOrderData({ uid: conText.rootState.user.uid, ...payload }).then(
         (res: {
           code: number;
@@ -187,6 +190,9 @@ export default {
         }) => {
           if (res.code === 200) {
             conText.commit(Types.SET_ORDERS_PAGE, { orders: res.data });
+            if (payload.success) {
+              payload.success();
+            }
           }
         }
       );
@@ -277,6 +283,7 @@ export default {
       conText: any,
       payload: {
         page: number;
+        success: () => void;
       }
     ) {
       getReviewOrderData({ uid: conText.rootState.user.uid, ...payload }).then(
@@ -290,6 +297,9 @@ export default {
             conText.commit(Types.SET_REVIEW_ORDERS_PAGE, {
               reviewOrders: res.data,
             });
+            if (payload.success) {
+              payload.success();
+            }
           }
         }
       );

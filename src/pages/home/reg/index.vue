@@ -119,7 +119,7 @@ export default defineComponent({
       }
     };
 
-    //获取短信验证码
+    // 获取短信验证码
     let getMsgCode = async () => {
       if (state.isSendMsgCode) {
         if (state.vcode.match(/^\s*$/)) {

@@ -83,6 +83,9 @@ export default defineComponent({
               store.dispatch("goodsReview/getReviewsPage", {
                 gid: state.gid,
                 page: page,
+                success: () => {
+                  proxy.$utils.lazyImg();
+                },
               });
             }
           );

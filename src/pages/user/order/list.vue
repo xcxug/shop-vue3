@@ -153,6 +153,9 @@ export default defineComponent({
               store.dispatch("order/getMyOrderPage", {
                 status: state.status,
                 page: page,
+                success: () => {
+                  proxy.$utils.lazyImg();
+                },
               });
             }
           );

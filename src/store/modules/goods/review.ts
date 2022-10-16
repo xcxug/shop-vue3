@@ -52,7 +52,10 @@ export default {
         }
       );
     },
-    getReviewsPage({ commit }: any, payload: { gid: string; page: number }) {
+    getReviewsPage(
+      { commit }: any,
+      payload: { gid: string; page: number; success: () => void }
+    ) {
       getReviewsData(payload.gid, payload.page).then(
         (res: {
           code: number;
@@ -62,6 +65,9 @@ export default {
         }) => {
           if (res.code === 200) {
             commit(Types.SET_REVIEWS_PAGE, { reviews: res.data });
+            if (payload.success) {
+              payload.success();
+            }
           }
         }
       );
