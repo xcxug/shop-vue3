@@ -214,7 +214,7 @@ export default {
     ) {
       sureOrderData({ uid: conText.rootState.user.uid, ...payload }).then(
         (res: { code: number; data: string; status: number }) => {
-          console.log(res);
+          // console.log(res);
           if (res.code === 200) {
             conText.commit(Types.SET_STATUS, {
               index: payload.index,
