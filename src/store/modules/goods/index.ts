@@ -119,6 +119,7 @@ export default {
             for (let i = 0; i < res.data.length; i++) {
               for (let j = 0; j < res.data[i].values.length; j++) {
                 res.data[i].values[j].active = false;
+                res.data[i].values[j].title = res.data[i].values[j].value;
               }
             }
             commit(Types.SET_ATTRS, { attrs: res.data });

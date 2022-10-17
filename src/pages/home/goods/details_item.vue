@@ -97,7 +97,11 @@
             -
           </div>
           <div class="amount-input">
-            <input type="tel" :value="amount" @input="setAmount($event)" />
+            <input
+              type="tel"
+              :value="amount"
+              @input="setAmount($event.target.value)"
+            />
           </div>
           <div class="btn inc" @click="++amount">+</div>
         </div>
@@ -145,7 +149,7 @@ export default defineComponent({
       attrs: any;
       isPanel: boolean;
       isMove: boolean;
-      amount: number;
+      amount: number | string;
       gid: string;
     }>({
       details: computed(() => store.state.goods.details),
@@ -228,12 +232,13 @@ export default defineComponent({
     };
 
     // 设置数量
-    let setAmount = (e: any) => {
-      let amount = e.target.value as string;
-      amount = amount.replace(/[^\d]/g, "");
-      state.amount = Number(amount);
-      if (!amount || amount === "0") {
+    let setAmount = (amount: string) => {
+      state.amount = amount;
+      state.amount = state.amount.replace(/[^\d]/g, "");
+      if (!state.amount || state.amount === "0") {
         state.amount = 1;
+      } else {
+        state.amount = Number(state.amount);
       }
     };
 
@@ -292,7 +297,7 @@ export default defineComponent({
                   if (state.attrs[i].values[j].active) {
                     param.push({
                       paramid: state.attrs[i].values[j].vid,
-                      title: state.attrs[i].values[j].value,
+                      title: state.attrs[i].values[j].title,
                     });
                   }
                 }

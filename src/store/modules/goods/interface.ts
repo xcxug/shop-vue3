@@ -36,6 +36,7 @@ export interface AttrsItem {
   value: string;
   vid: string;
   active?: boolean;
+  title?: string;
 }
 
 export interface Reviews {
