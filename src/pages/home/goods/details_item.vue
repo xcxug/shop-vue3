@@ -53,7 +53,7 @@
       <div class="no-data" v-show="reviews.length <= 0">暂无评价！</div>
     </div>
     <div class="bottom-btn-wrap">
-      <div class="btn fav">收藏</div>
+      <div class="btn fav" @click="addFav()">收藏</div>
       <div class="btn cart" @click="showPanel()">加入购物车</div>
     </div>
     <div class="mask" v-show="isPanel" @click="hidePanel()"></div>
@@ -147,6 +147,7 @@ export default defineComponent({
       total: any;
       reviews: any;
       attrs: any;
+      isLogin: any;
       isPanel: boolean;
       isMove: boolean;
       amount: number | string;
@@ -156,6 +157,7 @@ export default defineComponent({
       total: computed(() => store.state.goodsReview.total),
       reviews: computed(() => store.state.goodsReview.reviews),
       attrs: computed(() => store.state.goods.attrs),
+      isLogin: computed(() => store.state.user.isLogin),
       isPanel: false,
       isMove: true, // 加入购物车动画是否结束
       amount: 1,
@@ -326,6 +328,20 @@ export default defineComponent({
       }
     };
 
+    // 我的收藏
+    let addFav = () => {
+      if (state.isLogin) {
+        store.dispatch("goods/addFav", {
+          gid: state.gid,
+          success: (res: { code: number; data: string; status: number }) => {
+            Toast(res.data);
+          },
+        });
+      } else {
+        Toast("请登录会员");
+      }
+    };
+
     return {
       swpierWrap,
       swiperPagination,
@@ -338,6 +354,7 @@ export default defineComponent({
       SELECT_ATTR,
       setAmount,
       sureSubmit,
+      addFav,
     };
   },
 });

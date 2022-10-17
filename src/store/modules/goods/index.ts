@@ -3,6 +3,7 @@ import {
   getGoodsData,
   getDetailsData,
   getSpecData,
+  addFavData,
 } from "@/api/goods";
 import { Classifys, Goods, Details, Attrs } from "./interface";
 import * as Types from "./types";
@@ -123,6 +124,22 @@ export default {
               }
             }
             commit(Types.SET_ATTRS, { attrs: res.data });
+          }
+        }
+      );
+    },
+    // 加入收藏
+    addFav(
+      conText: any,
+      payload: {
+        gid: string;
+        success: (res: { code: number; data: string; status: number }) => void;
+      }
+    ) {
+      addFavData({ uid: conText.rootState.user.uid, ...payload }).then(
+        (res: { code: number; data: string; status: number }) => {
+          if (payload.success) {
+            payload.success(res);
           }
         }
       );

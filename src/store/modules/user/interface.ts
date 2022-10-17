@@ -20,3 +20,19 @@ export interface UploadHeadData {
   msbox: string;
   msg: string;
 }
+
+export interface FavData {
+  cid: string;
+  fid: string;
+  gid: string;
+  image: string;
+  price: number;
+  title: string;
+}
+
+export interface Pageinfo {
+  itemTotal: number;
+  page: string;
+  pagenum: string;
+  pagesize: string;
+}

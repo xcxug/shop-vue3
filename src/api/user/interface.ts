@@ -39,3 +39,14 @@ export interface updatePasswordData {
   uid: string;
   password: string;
 }
+
+export interface FavData {
+  uid: string;
+  page: number;
+}
+
+export interface DelFavData {
+  uid: string;
+  index: number;
+  fid: string;
+}

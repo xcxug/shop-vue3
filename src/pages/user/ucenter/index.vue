@@ -52,7 +52,7 @@
         <li>修改密码</li>
         <li></li>
       </ul>
-      <ul>
+      <ul @click="goPage('/user/fav')">
         <li>我的收藏</li>
         <li></li>
       </ul>

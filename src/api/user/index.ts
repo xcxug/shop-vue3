@@ -9,6 +9,8 @@ import {
   UpdateUserInfoData,
   UpdateCellphoneData,
   updatePasswordData,
+  FavData,
+  DelFavData,
 } from "./interface";
 
 // 会员登录
@@ -112,6 +114,32 @@ function updatePasswordData(data: updatePasswordData) {
   );
 }
 
+// 我的收藏
+function getFavData(data: FavData) {
+  return request(
+    config.baseApi +
+      "/user/fav/index?uid=" +
+      data.uid +
+      "&token=" +
+      config.token +
+      "&page=" +
+      data.page
+  );
+}
+
+// 删除收藏
+function delFavData(data: DelFavData) {
+  return request(
+    config.baseApi +
+      "/user/fav/del?uid=" +
+      data.uid +
+      "&fid=" +
+      data.fid +
+      "&token=" +
+      config.token
+  );
+}
+
 export {
   loginData,
   safeUserData,
@@ -124,4 +152,6 @@ export {
   updateUserInfoData,
   updateCellphoneData,
   updatePasswordData,
+  getFavData,
+  delFavData,
 };

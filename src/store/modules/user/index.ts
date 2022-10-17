@@ -10,12 +10,16 @@ import {
   updateUserInfoData,
   updateCellphoneData,
   updatePasswordData,
+  getFavData,
+  delFavData,
 } from "@/api/user";
 import {
   LoginData,
   IsRegData,
   UserInfoData,
   UploadHeadData,
+  FavData,
+  Pageinfo,
 } from "./interface";
 import * as Types from "./types";
 
@@ -28,6 +32,7 @@ export default {
     authToken: localStorage["authToken"] ? localStorage["authToken"] : "",
     head: "",
     points: 0,
+    favs: [],
   },
   mutations: {
     [Types.SET_LOGIN](
@@ -89,6 +94,25 @@ export default {
       state.nickname = payload.nickname;
       state.head = payload.head;
       state.points = payload.points;
+    },
+    // 设置我的收藏
+    [Types.SET_FAVS](state: { favs: FavData[] }, payload: { favs: FavData[] }) {
+      state.favs = payload.favs;
+    },
+    [Types.SET_FAVS_PAGE](
+      state: { favs: FavData[] },
+      payload: { favs: FavData[] }
+    ) {
+      state.favs.push(...payload.favs);
+    },
+    // 删除收藏
+    [Types.DEL_FAVS](
+      state: { favs: FavData[] },
+      payload: {
+        index: number;
+      }
+    ) {
+      state.favs.splice(payload.index, 1);
     },
   },
   actions: {
@@ -279,6 +303,78 @@ export default {
         (res: { code: number; data: string; status: number }) => {
           if (payload.success) {
             payload.success(res);
+          }
+        }
+      );
+    },
+    // 我的收藏
+    getFav(
+      conText: any,
+      payload: {
+        page: number;
+        success: (pageNum: number) => void;
+      }
+    ) {
+      getFavData({ uid: conText.state.uid, ...payload }).then(
+        (res: {
+          code: number;
+          data: FavData[];
+          pageinfo: Pageinfo;
+          status: number;
+        }) => {
+          let pageNum = 0;
+          if (res.code === 200) {
+            conText.commit(Types.SET_FAVS, { favs: res.data });
+            pageNum = parseInt(res.pageinfo.pagenum);
+          } else {
+            conText.commit(Types.SET_FAVS, { favs: [] });
+            pageNum = 0;
+          }
+          if (payload.success) {
+            payload.success(pageNum);
+          }
+        }
+      );
+    },
+    getFavPage(
+      conText: any,
+      payload: {
+        page: number;
+        success: () => void;
+      }
+    ) {
+      getFavData({ uid: conText.state.uid, ...payload }).then(
+        (res: {
+          code: number;
+          data: FavData[];
+          pageinfo: Pageinfo;
+          status: number;
+        }) => {
+          if (res.code === 200) {
+            conText.commit(Types.SET_FAVS_PAGE, { favs: res.data });
+            if (payload.success) {
+              payload.success();
+            }
+          }
+        }
+      );
+    },
+    // 删除收藏
+    delFav(
+      conText: any,
+      payload: {
+        index: number;
+        fid: string;
+        success: () => void;
+      }
+    ) {
+      delFavData({ uid: conText.state.uid, ...payload }).then(
+        (res: { code: number; data: string; status: number }) => {
+          if (res.code === 200) {
+            conText.commit(Types.DEL_FAVS, { index: payload.index });
+            if (payload.success) {
+              payload.success();
+            }
           }
         }
       );

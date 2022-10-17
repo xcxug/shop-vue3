@@ -1,5 +1,6 @@
 import config from "@/assets/js/conf/config";
 import { request } from "@/assets/js/utils/request";
+import { AddFavData } from "./interface";
 
 // 左侧分类
 function getClassifyData() {
@@ -35,4 +36,23 @@ function getSpecData(gid = "") {
   );
 }
 
-export { getClassifyData, getGoodsData, getDetailsData, getSpecData };
+// 加入收藏
+function addFavData(data: AddFavData) {
+  return request(
+    config.baseApi +
+      "/goods/fav?uid=" +
+      data.uid +
+      "&gid=" +
+      data.gid +
+      "&token=" +
+      config.token
+  );
+}
+
+export {
+  getClassifyData,
+  getGoodsData,
+  getDetailsData,
+  getSpecData,
+  addFavData,
+};
